@@ -107,7 +107,7 @@
     //PC only
     if(!/Mobi/.test(navigator.userAgent)){
       const c=document.getElementById('particle-bg'),d=c.getContext('2d');
-      let w=0,h=0,p=[],n=60,m=24,s=0;
+      let w=0,h=0,p=[],n=60,m=48,s=0;
       function R(){w=window.innerWidth;h=window.innerHeight;c.width=w;c.height=h}
       window.addEventListener('resize',R);R();
       for(let i=0;i<m;i++)p.push({x:Math.random()*w,y:Math.random()*h,vx:(Math.random()-.5)*.7,vy:(Math.random()-.5)*.7});
