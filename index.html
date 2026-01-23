@@ -126,7 +126,7 @@
           for(let j=i+1;j<m;j++){
             let b=p[j],dx=a.x-b.x,dy=a.y-b.y,l2=dx*dx+dy*dy;
             if(l2<13000){
-              d.globalAlpha=1-l2/1000;
+              d.globalAlpha=1-l2/13000;
               d.beginPath();d.moveTo(a.x,a.y);d.lineTo(b.x,b.y);
               d.strokeStyle="#111";d.stroke();
             }
