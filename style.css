@@ -9,7 +9,7 @@
 <body>
   <!-- 斜めアルファ画像（画像ファイル header-diagonal.jpg をルート設置してください） -->
   <div id="diagonal-img-wrapper">
-    <img id="diagonal-img" src="header-diagonal.jpg" alt="Header Decoration" />
+    <img id="diagonal-img" src="header-diagonal.png" alt="Header Decoration" />
   </div>
   <canvas id="particle-bg"></canvas>
   <div id="canvas-mask"></div>
