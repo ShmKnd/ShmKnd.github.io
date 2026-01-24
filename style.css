@@ -1,117 +1,140 @@
-<!DOCTYPE html>
-<html lang="ja">
-<head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Shoma Kondo – Technical Visual / Interactive</title>
-  <link rel="stylesheet" href="style.css" />
-</head>
-<body>
-  <!-- 斜めアルファ画像（画像ファイル header-diagonal.jpg をルート設置してください） -->
-  <div id="diagonal-img-wrapper">
-    <img id="diagonal-img" src="header-diagonal.png" alt="Header Decoration" />
-  </div>
-  <canvas id="particle-bg"></canvas>
-  <div id="canvas-mask"></div>
-  <main>
-    <header>
-      <h1>Shoma Kondo</h1>
-      <p class="role">
-        Technical Visual / Interactive<br />
-        TouchDesigner · Audio · AI · Prototyping
-      </p>
-    </header>
-    <section>
-      <!-- Japanese -->
-      <p>
-        映像・音響制作のバックグラウンドを持ち、<br />
-        リアルタイム映像、インタラクティブ表現、<br />
-        AI・知覚系技術を用いたプロトタイピングを行っています。
-      </p>
-      <p>
-        企画意図を構造化し、技術仕様として落とし込み、<br />
-        実装まで持っていく役割を得意としています。
-      </p>
-      <!-- English -->
-      <p class="en">
-        With a background in video and audio production,<br />
-        I work on prototyping using real-time visuals,<br />
-        interactive systems, and AI / perceptual technologies.
-      </p>
-      <p class="en">
-        I specialize in structuring creative intentions,<br />
-        translating them into technical specifications,<br />
-        and carrying projects through to implementation.
-      </p>
-    </section>
-    <section>
-      <h2>Projects</h2>
-      <ul>
-        <li>
-          <a href="https://payhip.com/b/XqglK" target="_blank">
-            AudioUnits / VST Plugins (AI-assisted)
-          </a>
-        </li>
-        <li><a href="#" target="_blank">Realtime & Interactive (TouchDesigner / MaxMSP)</a></li>
-        <li><a href="#" target="_blank">Motion / Compositing (After Effects)</a></li>
-      </ul>
-    </section>
-    <section>
-      <h2>Writing</h2>
-      <ul>
-        <li>
-          <a href="https://note.com/sr_shoma" target="_blank">
-            note articles
-          </a>
-        </li>
-      </ul>
-    </section>
-    <section>
-      <h2>Links</h2>
-      <ul>
-        <li><a href="https://github.com/" target="_blank">GitHub</a></li>
-        <li><a href="https://www.youtube.com/" target="_blank">YouTube</a></li>
-        <li><a href="mailto:yourmail@example.com">Email</a></li>
-      </ul>
-    </section>
-    <footer>
-      <p>© 2026 Shoma Kondo</p>
-    </footer>
-  </main>
-  <script>
-    // パーティクル背景（PCのみ・軽量・30行以内）
-    if(!/Mobi/.test(navigator.userAgent)){
-      const c=document.getElementById('particle-bg'),d=c.getContext('2d');
-      let w=0,h=0,p=[],n=60,m=24,s=0;
-      function R(){w=window.innerWidth;h=window.innerHeight;c.width=w;c.height=h}
-      window.addEventListener('resize',R);R();
-      for(let i=0;i<m;i++)p.push({x:Math.random()*w,y:Math.random()*h,vx:(Math.random()-.5)*.7,vy:(Math.random()-.5)*.7});
-      function f(ts){
-        if(ts-s<1000/n){requestAnimationFrame(f);return;}
-        s=ts;d.clearRect(0,0,w,h);
-        for(let i=0;i<m;i++){
-          let a=p[i];
-          a.x+=a.vx;a.y+=a.vy;
-          if(a.x<0||a.x>w)a.vx*=-1;
-          if(a.y<0||a.y>h)a.vy*=-1;
-          d.beginPath();
-          d.arc(a.x,a.y,2,0,2*Math.PI);
-          d.fillStyle="#111";
-          d.fill();
-          for(let j=i+1;j<m;j++){
-            let b=p[j],dx=a.x-b.x,dy=a.y-b.y,l2=dx*dx+dy*dy;
-            if(l2<13000){
-              d.globalAlpha=1-l2/13000;
-              d.beginPath();d.moveTo(a.x,a.y);d.lineTo(b.x,b.y);
-              d.strokeStyle="#111";d.stroke();
-            }
-          }
-          d.globalAlpha=1;
-        }
-        requestAnimationFrame(f);
-      }
-      requestAnimationFrame(f);
-    }
-  </script>
-</body>
-</html>
+/* =========================
+   Base
+========================= */
+
+html {
+  font-family: system-ui, -apple-system, BlinkMacSystemFont,
+    "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  background: #ffffff;
+  color: #111111;
+}
+
+body {
+  margin: 0;
+  padding: 0;
+  font-size: 15px;
+  line-height: 1.75;
+}
+
+/* =========================
+   Layout
+========================= */
+
+main {
+  max-width: 720px;
+  padding: 48px 32px;
+  margin: 0; /* left-aligned */
+}
+
+/* =========================
+   Header
+========================= */
+
+header {
+  margin-bottom: 56px;
+}
+
+header h1 {
+  font-size: 2rem;
+  font-weight: 600;
+  margin: 0 0 0.3em 0;
+}
+
+.role {
+  font-size: 0.9rem;
+  line-height: 1.6;
+  color: #555;
+}
+
+/* =========================
+   Sections
+========================= */
+
+section {
+  margin-top: 56px;
+}
+
+section:first-of-type {
+  margin-top: 0;
+}
+
+h2 {
+  font-size: 0.85rem;
+  font-weight: 600;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  margin: 0 0 0.8em 0;
+  padding-bottom: 6px;
+  border-bottom: 1px solid #ddd;
+}
+
+/* =========================
+   Text
+========================= */
+
+p {
+  margin: 0;
+}
+
+section p + p {
+  margin-top: 0.9em;
+}
+
+.en {
+  margin-top: 1em;
+  font-size: 0.92em;
+  letter-spacing: 0.01em;
+  color: #555;
+}
+
+/* =========================
+   Lists
+========================= */
+
+ul {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+li {
+  margin-bottom: 0.4em;
+}
+
+/* =========================
+   Links
+========================= */
+
+a {
+  color: inherit;
+  text-decoration: none;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.25);
+}
+
+a:hover {
+  border-bottom-color: rgba(0, 0, 0, 0.85);
+}
+
+/* =========================
+   Footer
+========================= */
+
+footer {
+  margin-top: 80px;
+  font-size: 0.8rem;
+  color: #777;
+}
+
+/* =========================
+   Responsive (Minimal)
+========================= */
+
+@media (max-width: 600px) {
+  main {
+    padding: 32px 20px;
+  }
+
+  header h1 {
+    font-size: 1.6rem;
+  }
+}
