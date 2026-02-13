@@ -46,19 +46,19 @@
       <h3>Performance Systems &amp; Interactive (TouchDesigner / MaxMSP)</h3>
       <ul class="project-list">
         <li>
-          <a href="#" target="_blank">
+          <a href="#" class="project-link" data-project="lyrics-sync">
             <span class="project-title">Automated Lyrics Sync System</span>
             <span class="project-desc">ー CSV-based real-time lyric rendering via MIDI CC.</span>
           </a>
         </li>
         <li>
-          <a href="#" target="_blank">
+          <a href="#" class="project-link" data-project="ai-visual">
             <span class="project-title">AI-Driven Visual Objects</span>
             <span class="project-desc">ー Custom TD components for Depth Estimation and Saliency using Python.</span>
           </a>
         </li>
         <li>
-          <a href="#" target="_blank">
+          <a href="#" class="project-link" data-project="glsl-shaders">
             <span class="project-title">GLSL Shader Collection</span>
             <span class="project-desc">ー Voronoi, ACES, and Retro-PC color emulation.</span>
           </a>
@@ -68,7 +68,7 @@
       <h3>AudioUnits / VST Plugins</h3>
       <ul class="project-list">
         <li>
-          <a href="https://payhip.com/b/XqglK" target="_blank">
+          <a href="#" class="project-link" data-project="echogentleman">
             <span class="project-title">EchoGentleMan</span>
             <span class="project-desc">ー High-precision Analog BBD Delay.</span>
           </a>
@@ -78,13 +78,13 @@
       <h3>Broadcast &amp; Streaming Tools</h3>
       <ul class="project-list">
         <li>
-          <a href="https://github.com/ShmKnd/MasterLevelMeter" target="_blank">
+          <a href="#" class="project-link" data-project="master-level-meter">
             <span class="project-title">MasterLevelMeter</span>
             <span class="project-desc">ー Integrated master bus monitoring for OBS.</span>
           </a>
         </li>
         <li>
-          <a href="https://github.com/ShmKnd/AudioInspector" target="_blank">
+          <a href="#" class="project-link" data-project="audio-inspector">
             <span class="project-title">Audio Inspector</span>
             <span class="project-desc">ー Visualizing global/source audio signal paths.</span>
           </a>
@@ -94,13 +94,13 @@
       <h3>Utility &amp; Workflow (Internal)</h3>
       <ul class="project-list">
         <li>
-          <a href="#" target="_blank">
+          <a href="#" class="project-link" data-project="buttersync">
             <span class="project-title">ButterSync</span>
             <span class="project-desc">ー Redundant DAW sync system with MTC Freewheel logic.</span>
           </a>
         </li>
         <li>
-          <a href="#" target="_blank">
+          <a href="#" class="project-link" data-project="image-captioner">
             <span class="project-title">Image Captioner</span>
             <span class="project-desc">ー Batch image processor with Saliency-based cropping.</span>
           </a>
@@ -131,6 +131,453 @@
       <p>© 2026 Shoma Kondo</p>
     </footer>
   </main>
+  <!-- Side Sheet -->
+  <div class="sheet-overlay" id="sheetOverlay"></div>
+  <aside class="side-sheet" id="sideSheet" aria-hidden="true">
+    <nav class="sheet-nav">
+      <button class="sheet-back" id="sheetBack" aria-label="Close">←</button>
+    </nav>
+    <div class="sheet-body">
+      <h2 class="sheet-title" id="sheetTitle"></h2>
+      <div class="sheet-images" id="sheetImages"></div>
+      <div class="sheet-summary" id="sheetSummary"></div>
+      <div class="sheet-notes" id="sheetNotes"></div>
+      <div class="sheet-background" id="sheetBackground"></div>
+      <div class="sheet-links" id="sheetLinks"></div>
+    </div>
+  </aside>
+
+  <!-- Lightbox (Shared Element Transition) -->
+  <div class="lightbox" id="lightbox">
+    <div class="lightbox-bg" id="lightboxBg"></div>
+    <img class="lightbox-img" id="lightboxImg" alt="" />
+  </div>
+
+  <script>
+  // ── Side Sheet logic ──
+  (function () {
+    /* ── Project data registry ── */
+    const projects = {
+      'lyrics-sync': {
+        title: 'Automated Lyrics Sync System',
+        images: [],
+        summary: 'CSV-based real-time lyric rendering via MIDI CC. Handles timed lyric display synced to music playback using TouchDesigner and MIDI control change messages.',
+        note: 'TouchDesigner, Python, CSV, MIDI, AudioHardware',
+        background:'',
+        background_en:'',
+        links: []
+      },
+      'ai-visual': {
+        title: 'AI-Driven Visual Objects',
+        images: [],
+        summary: 'Custom TouchDesigner components for Depth Estimation and Saliency detection using Python. Generates real-time visual layers from camera input.',
+        note: 'Python, TouchDesigner, PyTorch, ONNX Runtime',
+        background:'',
+        background_en:'',
+        links: []
+      },
+      'glsl-shaders': {
+        title: 'GLSL Shader Collection',
+        images: [],
+        summary: 'A set of GLSL shaders including Voronoi noise, ACES tone mapping, and Retro-PC color palette emulation for use in TouchDesigner.',
+        note: 'GLSL, TouchDesigner, PyTorch,ONNX Runtime',
+        background:'',
+        background_en:'',
+        links: []
+      },
+      'echogentleman': {
+        title: 'EchoGentleMan',
+        images: ['Assets/EchoGentleMan.webp'],
+        summary: 'High-precision Analog BBD Delay plugin. Modeled after classic bucket-brigade circuits with modern DSP accuracy.',
+        note: 'C++, JUCE, AudioUnit, VST3',
+        note2: '5 months development',
+        background: '既存のアナログディレイ・プラグインは、ギタリスト向けのシンプルだがモノラルなものか、エンジニア向けの多機能だが複雑すぎるものの二極化が進んでいました。EchoGentleManは、Strymon TIMELINEのような直感的な操作性と、現代的なステレオ処理の精密さを両立させたプロダクトです。JUCEとC++を用い、SIMDによる高速化を施すことで、音楽的な「旨味」とデジタル特有の利便性を一つのパッケージに凝縮しました。',
+        background_en: 'Most analog delay plugins are either too simplistic for engineers or too complex for guitarists. EchoGentleMan bridges this gap, inspired by the intuitive yet precise philosophy of the Strymon TIMELINE. Developed with JUCE and C++, and optimized with SIMD, it delivers high-fidelity stereo processing with the effortless workflow of a classic hardware pedal.',
+        links: [{ label: 'Payhip', url: 'https://payhip.com/b/XqglK' }]
+      },
+      'master-level-meter': {
+        title: 'MasterLevelMeter',
+        images: ['Assets/MasterLevelMeter.webp'],
+        summary: 'Integrated master bus monitoring plugin for OBS. Provides real-time loudness and peak metering inside the streaming workflow.',
+        note: 'C++, Qt6, OBS Plugin API',
+        note2: '3 months development',
+        background:'OBS Studioには標準で最終出力を監視するマスターバスが存在しないため、配信全体の音量バランスを正確に把握することが困難でした。この課題を解決するため、トラック1〜6のレベルを統合的に監視し、Peak/RMSに加えて放送基準のLUFS値をリアルタイムで表示するプラグインを開発しました。AIとの共同開発により、仕様策定から2ヶ月という短期間でユニバーサルバイナリ化とGitHubでの公開を実現しています。',
+        background_en:'OBS Studio lacks a native master bus, making it difficult to maintain consistent volume levels across a stream. To address this, I developed a plugin that monitors all six tracks simultaneously, providing real-time Peak, RMS, and LUFS visualization. By leveraging AI-assisted coding, I moved from specification to a cross-platform GitHub release within just two months.',
+        links: [{ label: 'GitHub', url: 'https://github.com/ShmKnd/MasterLevelMeter' }]
+      },
+      'audio-inspector': {
+        title: 'Audio Inspector',
+        images: ['Assets/AudioInspector-1.webp','Assets/AudioInspector-2.webp','Assets/AudioInspector-3.webp','Assets/AudioInspector-4.webp'],
+        summary: 'Visualizes global and per-source audio signal paths inside OBS, aiding in complex routing and debugging.',
+        note: 'C++, Qt6, OBS Plugin API',
+        note2: '1 months development',
+        background:'複雑なOBSの音声ルーティングにおいて、初学者がトラブルの原因を特定するのは容易ではありません。また、熟練者にとっても設定の階層を辿る作業は非効率です。そこで、全音声デバイスの状態をワンクリックで診断し、状況をJSON形式のマップとしてエクスポートできるツールを構築しました。これにより、トラブルシューティングの即応性を高め、他者へのサポートも容易にする仕組みを提供しています。',
+        background_en:"Navigating OBS's complex audio routing can be daunting for beginners and tedious for professionals. I built this diagnostic tool to simplify the process by generating a comprehensive JSON map of all audio device states with a single click. This significantly speeds up troubleshooting and makes it easier for users to seek or provide remote technical support.",
+        links: [{ label: 'GitHub', url: 'https://github.com/ShmKnd/AudioInspector' }]
+      },
+      'buttersync': {
+        title: 'ButterSync',
+        images: ['Assets/ButterSync.webp'],
+        summary: 'Redundant DAW sync system with MTC Freewheel logic. Ensures stable timecode sync across multiple applications.',
+        note: 'Swift, CoreMIDI, Interface Builder',
+        note2: '3 months development',
+        background: 'ライブ演出の現場では、DAWを2台体制にする冗長化が一般的ですが、高価なハードウェアなしに「マスターが止まってもバックアップが止まらない（Jamシンク）」環境を構築するのは困難でした。ButterSyncは、MTC信号を監視し、信号途絶時に瞬時に内部時計によるフリーランへと切り替えるロジックをソフトウェアで実装しました。CoreMIDIとC++を駆使し、現場の「止まれない」要求に応える信頼性を実現しています。',
+        background_en: 'In live show environments, achieving robust DAW redundancy without expensive hardware remains a challenge. ButterSync solves this by implementing "Jam-sync" logic via software, monitoring the MTC signal and instantly switching to an internal freewheeling clock if the master fails. Built with CoreMIDI and C++, it ensures seamless synchronization for mission-critical performances.',
+        links: []
+      },
+      'image-captioner': {
+        title: 'Image Captioner',
+        images: ['Assets/ImageCaptioner-1.webp','Assets/ImageCaptioner-2.webp','Assets/ImageCaptioner-3.webp'],
+        summary: 'Batch image processor with Saliency-based cropping. Automatically generates descriptive captions for large image sets.',
+        note: 'Swift, CoreImage, CoreGraphics, Interface Builder, OpenCV',
+        note2: '3 months development',
+        background: 'インスタグラム投稿用の画像編集において、正方形へのトリミングやEXIF情報の文字入れは、手動で行うにはあまりに反復的な作業です。このアプリは、OpenCVのサリエンシー解析を用いて写真の「注目点」を自動で中央に配置し、さらに背景の明度を判別してEXIFのフォント色を自動調整するインテリジェンスを備えています。Swiftによるネイティブ実装で、大量の画像もバッチ処理で瞬時に最適化することが可能です。',
+        background_en: 'Preparing photos for Instagram—cropping to squares and adding EXIF metadata—is often a repetitive chore. This macOS native app automates the process using OpenCV saliency analysis to keep the visual focus centered, while intelligently adjusting font colors based on background luminosity. Built with Swift, it provides a high-speed batch workflow that allows creators to spend more time shooting and less time editing.',
+        links: []
+      }
+    };
+
+    const sheet     = document.getElementById('sideSheet');
+    const overlay   = document.getElementById('sheetOverlay');
+    const btnBack   = document.getElementById('sheetBack');
+    const elTitle   = document.getElementById('sheetTitle');
+    const elImages  = document.getElementById('sheetImages');
+    const elSummary    = document.getElementById('sheetSummary');
+    const elBackground = document.getElementById('sheetBackground');
+    const elNotes      = document.getElementById('sheetNotes');
+    const elLinks   = document.getElementById('sheetLinks');
+
+    /* ── Slider state ── */
+    var sliderTrack = null;
+    var sliderIndex = 0;
+    var sliderTotal = 0;
+
+    function goSlide(i) {
+      if (!sliderTrack || i < 0 || i >= sliderTotal) return;
+      sliderIndex = i;
+      var slideW = sliderTrack.parentNode.offsetWidth;
+      sliderTrack.style.transform = 'translateX(' + -(i * slideW) + 'px)';
+      /* Update dots */
+      var slider = sliderTrack.parentNode.parentNode;
+      var dots = slider.querySelectorAll('.sheet-dot');
+      dots.forEach(function (d, di) {
+        d.classList.toggle('is-active', di === i);
+      });
+      /* Update edge shadows on track-wrap */
+      var wrap = sliderTrack.parentNode;
+      if (wrap) {
+        wrap.classList.toggle('has-prev', i > 0);
+        wrap.classList.toggle('has-next', i < sliderTotal - 1);
+      }
+    }
+
+    /* ── Lightbox (Shared Element Transition) ── */
+    var lbEl      = document.getElementById('lightbox');
+    var lbBg      = document.getElementById('lightboxBg');
+    var lbImg     = document.getElementById('lightboxImg');
+    var lbSource  = null; /* source <img> for return animation */
+
+    function openLightbox(srcImg) {
+      lbSource = srcImg;
+      lbImg.src = srcImg.src;
+
+      /* Measure source position */
+      var r = srcImg.getBoundingClientRect();
+
+      /* Place lightbox image at source rect */
+      lbImg.style.transition = 'none';
+      lbImg.style.left   = r.left + 'px';
+      lbImg.style.top    = r.top  + 'px';
+      lbImg.style.width  = r.width  + 'px';
+      lbImg.style.height = r.height + 'px';
+      lbImg.style.borderRadius = '6px';
+
+      lbEl.classList.add('is-active');
+
+      /* Force reflow then animate to centre */
+      void lbImg.offsetWidth;
+
+      /* Compute destination: fit to viewport with padding */
+      var pad = 32;
+      var vw = window.innerWidth, vh = window.innerHeight;
+      var natW = srcImg.naturalWidth  || r.width;
+      var natH = srcImg.naturalHeight || r.height;
+      var scale = Math.min((vw - pad * 2) / natW, (vh - pad * 2) / natH, 1);
+      var dw = natW * scale, dh = natH * scale;
+      var dl = (vw - dw) / 2, dt = (vh - dh) / 2;
+
+      lbImg.style.transition = 'left .38s cubic-bezier(0.22,1,0.36,1), top .38s cubic-bezier(0.22,1,0.36,1), width .38s cubic-bezier(0.22,1,0.36,1), height .38s cubic-bezier(0.22,1,0.36,1), border-radius .38s ease';
+      lbImg.style.left   = dl + 'px';
+      lbImg.style.top    = dt + 'px';
+      lbImg.style.width  = dw + 'px';
+      lbImg.style.height = dh + 'px';
+      lbImg.style.borderRadius = '0';
+    }
+
+    function closeLightbox() {
+      if (!lbSource) { lbEl.classList.remove('is-active'); return; }
+
+      var r = lbSource.getBoundingClientRect();
+      lbImg.style.transition = 'left .32s cubic-bezier(0.22,1,0.36,1), top .32s cubic-bezier(0.22,1,0.36,1), width .32s cubic-bezier(0.22,1,0.36,1), height .32s cubic-bezier(0.22,1,0.36,1), border-radius .32s ease';
+      lbImg.style.left   = r.left + 'px';
+      lbImg.style.top    = r.top  + 'px';
+      lbImg.style.width  = r.width  + 'px';
+      lbImg.style.height = r.height + 'px';
+      lbImg.style.borderRadius = '6px';
+
+      lbBg.style.opacity = '0';
+
+      function onEnd() {
+        lbImg.removeEventListener('transitionend', onEnd);
+        lbEl.classList.remove('is-active');
+        lbBg.style.opacity = '';
+        lbSource = null;
+      }
+      lbImg.addEventListener('transitionend', onEnd);
+    }
+
+    lbBg.addEventListener('click', closeLightbox);
+    lbImg.addEventListener('click', closeLightbox);
+    document.addEventListener('keydown', function (e) {
+      if (e.key === 'Escape' && lbEl.classList.contains('is-active')) {
+        e.stopPropagation();
+        closeLightbox();
+      }
+    });
+
+    function updateEdgeShadows(el) {
+      if (!el) return;
+      var wrap = el.querySelector('.sheet-slider-track-wrap');
+      if (wrap) {
+        wrap.classList.toggle('has-prev', sliderIndex > 0);
+        wrap.classList.toggle('has-next', sliderIndex < sliderTotal - 1);
+      }
+    }
+
+    function initSwipe(el) {
+      var startX = 0, startY = 0, dx = 0, locked = false, moved = false, captured = false;
+      var trackWrap = el.querySelector('.sheet-slider-track-wrap');
+
+      /* Hover side tracking for edge shadows */
+      el.addEventListener('mousemove', function (e) {
+        if (!trackWrap) return;
+        var rect = el.getBoundingClientRect();
+        var ratio = (e.clientX - rect.left) / rect.width;
+        trackWrap.classList.toggle('hover-left',  ratio < 0.35);
+        trackWrap.classList.toggle('hover-right', ratio > 0.65);
+      });
+      el.addEventListener('mouseleave', function () {
+        if (!trackWrap) return;
+        trackWrap.classList.remove('hover-left', 'hover-right');
+      });
+
+      el.addEventListener('pointerdown', function (e) {
+        /* Let dot clicks pass through entirely */
+        if (e.target.classList.contains('sheet-dot')) return;
+        startX = e.clientX; startY = e.clientY;
+        dx = 0; locked = false; moved = false; captured = true;
+        if (sliderTotal >= 2) {
+          sliderTrack.classList.add('is-dragging');
+          el.setPointerCapture(e.pointerId);
+        }
+      });
+
+      el.addEventListener('pointermove', function (e) {
+        if (!captured || !sliderTrack || !sliderTrack.classList.contains('is-dragging')) return;
+        dx = e.clientX - startX;
+        var dy = e.clientY - startY;
+        if (!locked && Math.abs(dy) > Math.abs(dx)) {
+          sliderTrack.classList.remove('is-dragging');
+          captured = false;
+          return;
+        }
+        locked = true;
+        if (Math.abs(dx) > 4) moved = true;
+        var slideW = sliderTrack.parentNode.offsetWidth;
+        var base = -(sliderIndex * slideW);
+        sliderTrack.style.transform = 'translateX(' + (base + dx) + 'px)';
+      });
+
+      function end(e) {
+        if (!captured) return;
+        captured = false;
+        if (!sliderTrack) return;
+        var wasDragging = sliderTrack.classList.contains('is-dragging');
+        sliderTrack.classList.remove('is-dragging');
+
+        if (moved && wasDragging) {
+          /* Swipe gesture */
+          var threshold = el.offsetWidth * 0.2;
+          if (dx < -threshold && sliderIndex < sliderTotal - 1) goSlide(sliderIndex + 1);
+          else if (dx > threshold && sliderIndex > 0) goSlide(sliderIndex - 1);
+          else goSlide(sliderIndex);
+        } else if (!moved) {
+          /* Tap — left 30% = prev, right 30% = next, center 40% = lightbox */
+          var rect = el.getBoundingClientRect();
+          var tapX = (e.clientX - rect.left) / rect.width;
+          if (tapX < 0.30) {
+            if (sliderIndex > 0) goSlide(sliderIndex - 1);
+          } else if (tapX > 0.70) {
+            if (sliderIndex < sliderTotal - 1) goSlide(sliderIndex + 1);
+          } else {
+            /* Center tap — lightbox */
+            var imgs = sliderTrack.querySelectorAll('img');
+            if (imgs[sliderIndex]) openLightbox(imgs[sliderIndex]);
+          }
+        }
+        updateEdgeShadows(el);
+      }
+
+      el.addEventListener('pointerup', end);
+      el.addEventListener('pointercancel', end);
+
+      updateEdgeShadows(el);
+    }
+
+    function openSheet(key) {
+      const data = projects[key];
+      if (!data) return;
+
+      elTitle.textContent = data.title;
+
+      /* Clean up previous resize listener */
+      var prevSlider = elImages.querySelector('.sheet-slider');
+      if (prevSlider && prevSlider._cleanResize) prevSlider._cleanResize();
+
+      elImages.innerHTML = '';
+      sliderIndex = 0;
+      if (data.images.length) {
+        /* Build slider */
+        var slider = document.createElement('div');
+        slider.className = 'sheet-slider';
+
+        var trackWrap = document.createElement('div');
+        trackWrap.className = 'sheet-slider-track-wrap';
+        var track = document.createElement('div');
+        track.className = 'sheet-slider-track';
+        data.images.forEach(function (src) {
+          var img = document.createElement('img');
+          img.src = src;
+          img.alt = data.title;
+          img.loading = 'lazy';
+          img.draggable = false;
+          track.appendChild(img);
+        });
+        trackWrap.appendChild(track);
+        slider.appendChild(trackWrap);
+
+        /* Dots */
+        if (data.images.length > 1) {
+          var dots = document.createElement('div');
+          dots.className = 'sheet-dots';
+          data.images.forEach(function (_, i) {
+            var d = document.createElement('button');
+            d.className = 'sheet-dot' + (i === 0 ? ' is-active' : '');
+            d.setAttribute('aria-label', 'Slide ' + (i + 1));
+            d.addEventListener('click', function () { goSlide(i); });
+            dots.appendChild(d);
+          });
+          slider.appendChild(dots);
+        }
+
+        elImages.appendChild(slider);
+        sliderTrack = track;
+        sliderTotal = data.images.length;
+
+        /* Set slide width as CSS var and recalc on resize */
+        function syncSlideWidth() {
+          var w = trackWrap.offsetWidth;
+          sliderTrack.style.setProperty('--slide-w', w + 'px');
+          goSlide(sliderIndex);
+        }
+        syncSlideWidth();
+        window.addEventListener('resize', syncSlideWidth);
+        /* Store cleanup ref */
+        slider._cleanResize = function () { window.removeEventListener('resize', syncSlideWidth); };
+
+        initSwipe(slider);
+      } else {
+        elImages.innerHTML = '<p class="sheet-no-image">No images yet.</p>';
+        sliderTrack = null;
+        sliderTotal = 0;
+      }
+
+      elSummary.textContent = data.summary;
+
+      /* Render notes (note, note2, note3) */
+      elNotes.innerHTML = '';
+      ['note', 'note2', 'note3'].forEach(function (key) {
+        if (data[key]) {
+          var p = document.createElement('p');
+          p.className = 'sheet-note';
+          p.textContent = data[key];
+          elNotes.appendChild(p);
+        }
+      });
+
+      /* Render background */
+      elBackground.innerHTML = '';
+      if (data.background || data.background_en) {
+        var bgHeading = document.createElement('h3');
+        bgHeading.className = 'sheet-section-heading';
+        bgHeading.textContent = 'Background';
+        elBackground.appendChild(bgHeading);
+        if (data.background) {
+          var bgJa = document.createElement('p');
+          bgJa.className = 'sheet-background-text';
+          bgJa.textContent = data.background;
+          elBackground.appendChild(bgJa);
+        }
+        if (data.background_en) {
+          var bgEn = document.createElement('p');
+          bgEn.className = 'sheet-background-text sheet-background-en';
+          bgEn.textContent = data.background_en;
+          elBackground.appendChild(bgEn);
+        }
+      }
+
+      elLinks.innerHTML = '';
+      if (data.links.length) {
+        data.links.forEach(function (l) {
+          var a = document.createElement('a');
+          a.href = l.url;
+          a.target = '_blank';
+          a.rel = 'noopener';
+          a.textContent = l.label;
+          elLinks.appendChild(a);
+        });
+      }
+
+      sheet.classList.add('is-open');
+      sheet.setAttribute('aria-hidden', 'false');
+      overlay.classList.add('is-visible');
+      document.body.classList.add('sheet-open');
+    }
+
+    function closeSheet() {
+      sheet.classList.remove('is-open');
+      sheet.setAttribute('aria-hidden', 'true');
+      overlay.classList.remove('is-visible');
+      document.body.classList.remove('sheet-open');
+    }
+
+    /* Attach click to all project links */
+    document.querySelectorAll('.project-link').forEach(function (el) {
+      el.addEventListener('click', function (e) {
+        e.preventDefault();
+        openSheet(el.dataset.project);
+      });
+    });
+
+    btnBack.addEventListener('click', closeSheet);
+    overlay.addEventListener('click', closeSheet);
+
+    document.addEventListener('keydown', function (e) {
+      if (e.key === 'Escape') closeSheet();
+    });
+  })();
+  </script>
+
   <script>
     // Three.js Twisted Surface Animation
     (function() {
