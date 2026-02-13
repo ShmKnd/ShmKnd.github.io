@@ -1,140 +1,28 @@
-/* =========================
-   Base
-========================= */
-
 html {
-  font-family: system-ui, -apple-system, BlinkMacSystemFont,
-    "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-  background: #ffffff;
-  color: #111111;
+  font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  background: #fff;
+  color: #111;
 }
 
-body {
-  margin: 0;
-  padding: 0;
-  font-size: 15px;
-  line-height: 1.75;
-}
-
-/* =========================
-   Layout
-========================= */
-
-main {
-  max-width: 720px;
-  padding: 48px 32px;
-  margin: 0; /* left-aligned */
-}
-
-/* =========================
-   Header
-========================= */
-
-header {
-  margin-bottom: 56px;
-}
-
-header h1 {
-  font-size: 2rem;
-  font-weight: 600;
-  margin: 0 0 0.3em 0;
-}
-
-.role {
-  font-size: 0.9rem;
-  line-height: 1.6;
-  color: #555;
-}
-
-/* =========================
-   Sections
-========================= */
-
-section {
-  margin-top: 56px;
-}
-
-section:first-of-type {
-  margin-top: 0;
-}
-
-h2 {
-  font-size: 0.85rem;
-  font-weight: 600;
-  letter-spacing: 0.14em;
-  text-transform: uppercase;
-  margin: 0 0 0.8em 0;
-  padding-bottom: 6px;
-  border-bottom: 1px solid #ddd;
-}
-
-/* =========================
-   Text
-========================= */
-
-p {
-  margin: 0;
-}
-
-section p + p {
-  margin-top: 0.9em;
-}
-
-.en {
-  margin-top: 1em;
-  font-size: 0.92em;
-  letter-spacing: 0.01em;
-  color: #555;
-}
-
-/* =========================
-   Lists
-========================= */
-
-ul {
-  list-style: none;
-  padding: 0;
-  margin: 0;
-}
-
-li {
-  margin-bottom: 0.4em;
-}
-
-/* =========================
-   Links
-========================= */
-
-a {
-  color: inherit;
-  text-decoration: none;
-  border-bottom: 1px solid rgba(0, 0, 0, 0.25);
-}
-
-a:hover {
-  border-bottom-color: rgba(0, 0, 0, 0.85);
-}
-
-/* =========================
-   Footer
-========================= */
-
-footer {
-  margin-top: 80px;
-  font-size: 0.8rem;
-  color: #777;
-}
-
-/* =========================
-   Responsive (Minimal)
-========================= */
+body { margin:0; padding:0; font-size:15px; line-height:1.75; }
+main { max-width:720px; padding:48px 32px; margin:0; position:relative; z-index:1; }
+header { margin-bottom:56px; }
+header h1 { font-size:2rem; font-weight:600; margin:0 0 0.3em 0; color:#111; }
+.role { font-size:0.9rem; line-height:1.6; color:#555; }
+section { margin-top:56px; }
+section:first-of-type { margin-top:0; }
+h2 { font-size:0.85rem; font-weight:600; letter-spacing:0.14em; text-transform:uppercase; margin:0 0 0.8em 0; padding-bottom:6px; border-bottom:1px solid rgba(0,0,0,0.15); color:#111;}
+p { margin:0; color:#333; }
+section p+p { margin-top:0.9em; }
+.en { margin-top:1em; font-size:0.92em; letter-spacing:0.01em; color:#666; }
+ul { list-style:none; padding:0; margin:0; }
+li { margin-bottom:0.4em; }
+a { color:#0077cc; text-decoration:none; border-bottom:1px solid rgba(0,119,204,0.3);}
+a:hover { border-bottom-color:rgba(0,119,204,0.8); color:#005599;}
+footer { margin-top:80px; font-size:0.8rem; color:#888; }
+#three-bg{position:fixed;z-index:0;inset:0;display:block;width:100vw;height:100vh;}
 
 @media (max-width: 600px) {
-  main {
-    padding: 32px 20px;
-  }
-
-  header h1 {
-    font-size: 1.6rem;
-  }
+  main { padding:32px 20px; }
+  header h1 { font-size:1.6rem; }
 }
