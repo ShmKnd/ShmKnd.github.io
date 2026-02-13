@@ -134,15 +134,33 @@
       }
 
       scene.background = makeBackgroundTexture();
+
+      const isIPhone = /iPhone|iPod/.test(navigator.userAgent);
+      function getViewportSize() {
+        if (isIPhone && window.visualViewport) {
+          return {
+            width: Math.max(1, Math.round(window.visualViewport.width)),
+            height: Math.max(1, Math.round(window.visualViewport.height)),
+          };
+        }
+        return {
+          width: Math.max(1, window.innerWidth),
+          height: Math.max(1, window.innerHeight),
+        };
+      }
+      let viewportSize = getViewportSize();
       
-      const camera = new THREE.PerspectiveCamera(25, window.innerWidth / window.innerHeight, 0.1, 1000);
+      const camera = new THREE.PerspectiveCamera(25, viewportSize.width / viewportSize.height, 0.1, 1000);
       camera.position.z = 12;
       camera.position.x = 0;
       camera.position.y = 0;
       
       const renderer = new THREE.WebGLRenderer({ antialias: true });
-      renderer.setSize(window.innerWidth, window.innerHeight);
-      renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+      renderer.domElement.style.width = '100%';
+      renderer.domElement.style.height = '100%';
+      renderer.setSize(viewportSize.width, viewportSize.height, false);
+      const pixelRatioCap = isIPhone ? 1.5 : 2;
+      renderer.setPixelRatio(Math.min(window.devicePixelRatio, pixelRatioCap));
       renderer.outputEncoding = THREE.sRGBEncoding;
       renderer.setClearColor(0xffffff, 1);
       renderer.sortObjects = true;
@@ -616,11 +634,34 @@
         renderer.render(scene, camera);
       }
       
-      window.addEventListener('resize', () => {
-        camera.aspect = window.innerWidth / window.innerHeight;
+      let resizeDebounceTimer = null;
+      function applyViewportResize(force = false) {
+        const next = getViewportSize();
+        if (!force) {
+          const widthDiff = Math.abs(next.width - viewportSize.width);
+          const heightDiff = Math.abs(next.height - viewportSize.height);
+          if (widthDiff < 2 && heightDiff < 2) return;
+        }
+
+        viewportSize = next;
+        camera.aspect = viewportSize.width / viewportSize.height;
         camera.updateProjectionMatrix();
-        renderer.setSize(window.innerWidth, window.innerHeight);
-      });
+        renderer.setSize(viewportSize.width, viewportSize.height, false);
+      }
+
+      function scheduleViewportResize() {
+        if (resizeDebounceTimer) clearTimeout(resizeDebounceTimer);
+        resizeDebounceTimer = setTimeout(() => applyViewportResize(), isIPhone ? 120 : 0);
+      }
+
+      window.addEventListener('resize', scheduleViewportResize, { passive: true });
+      if (window.visualViewport) {
+        window.visualViewport.addEventListener('resize', scheduleViewportResize, { passive: true });
+        window.visualViewport.addEventListener('scroll', scheduleViewportResize, { passive: true });
+      }
+      window.addEventListener('orientationchange', () => {
+        setTimeout(() => applyViewportResize(true), 220);
+      }, { passive: true });
       
       animate();
     })();
