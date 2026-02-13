@@ -12,13 +12,51 @@ header h1 { font-size:2rem; font-weight:600; margin:0 0 0.3em 0; color:#111; }
 section { margin-top:56px; }
 section:first-of-type { margin-top:0; }
 h2 { font-size:0.85rem; font-weight:600; letter-spacing:0.14em; text-transform:uppercase; margin:0 0 0.8em 0; padding-bottom:6px; border-bottom:1px solid rgba(0,0,0,0.15); color:#111;}
+h3 { margin:1.2em 0 0.5em 0; font-size:0.95rem; font-weight:600; color:#222; }
 p { margin:0; color:#333; }
 section p+p { margin-top:0.9em; }
 .en { margin-top:1em; font-size:0.92em; letter-spacing:0.01em; color:#666; }
 ul { list-style:none; padding:0; margin:0; }
 li { margin-bottom:0.4em; }
-a { color:#0077cc; text-decoration:none; border-bottom:1px solid rgba(0,119,204,0.3);}
-a:hover { border-bottom-color:rgba(0,119,204,0.8); color:#005599;}
+a {
+  color:#004576;
+  text-decoration:none;
+  border-bottom:1px solid rgba(0,119,204,0.3);
+  background-image:linear-gradient(
+    90deg,
+    rgba(0,119,204,0) 0%,
+    rgba(0,119,204,0.14) 50%,
+    rgba(0,119,204,0) 100%
+  );
+  background-repeat:no-repeat;
+  background-size:42% 100%;
+  background-position:-70% 0;
+  transition:color .22s ease, border-bottom-color .22s ease;
+}
+a:hover,
+a:focus-visible {
+  border-bottom-color:rgba(0,119,204,0.8);
+  color:#00213c;
+  background-position:170% 0;
+  transition:color .22s ease-out, border-bottom-color .22s ease-out, background-position .65s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.project-list { margin-left:0.6em; }
+.project-list li { margin-bottom:0.7em; }
+.project-list a {
+  display:block;
+  overflow-wrap:anywhere;
+  word-break:break-word;
+}
+.project-title,
+.project-desc {
+  display:block;
+  padding-left:0.7em;
+}
+.project-desc {
+  padding-left:1.4em;
+}
+
 footer { margin-top:80px; font-size:0.8rem; color:#888; }
 #three-bg{
   position:fixed;
@@ -34,4 +72,10 @@ footer { margin-top:80px; font-size:0.8rem; color:#888; }
 @media (max-width: 600px) {
   main { padding:32px 20px; }
   header h1 { font-size:1.6rem; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  a { transition:color .22s ease, border-bottom-color .22s ease; }
+  a:hover,
+  a:focus-visible { background-position:-70% 0; }
 }
