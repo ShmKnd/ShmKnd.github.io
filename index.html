@@ -154,6 +154,52 @@
   </div>
 
   <script>
+  // ── Line-level text background (tech style) ──
+  (function () {
+    function appendLineSpanIfNeeded(frag, lineSpan) {
+      if (!lineSpan) return;
+      if (!lineSpan.textContent || !lineSpan.textContent.trim()) return;
+      frag.appendChild(lineSpan);
+    }
+
+    function makeLineSpan() {
+      const span = document.createElement('span');
+      span.className = 'tech-line-bg';
+      return span;
+    }
+
+    function applyLineBackground(el) {
+      if (el.dataset.lineBgDone === '1') return;
+
+      const nodes = Array.from(el.childNodes);
+      if (!nodes.length) {
+        el.dataset.lineBgDone = '1';
+        return;
+      }
+
+      const frag = document.createDocumentFragment();
+      let lineSpan = makeLineSpan();
+
+      nodes.forEach(function (node) {
+        if (node.nodeType === Node.ELEMENT_NODE && node.tagName === 'BR') {
+          appendLineSpanIfNeeded(frag, lineSpan);
+          frag.appendChild(node);
+          lineSpan = makeLineSpan();
+          return;
+        }
+        lineSpan.appendChild(node);
+      });
+
+      appendLineSpanIfNeeded(frag, lineSpan);
+      el.textContent = '';
+      el.appendChild(frag);
+      el.dataset.lineBgDone = '1';
+    }
+
+    const targets = document.querySelectorAll('main h1, main .role, main h2, main h3, main p, main .project-title, main .project-desc, main a:not(.project-link), main footer p');
+    targets.forEach(applyLineBackground);
+  })();
+
   // ── Side Sheet logic ──
   (function () {
     /* ── Project data registry ── */
@@ -595,50 +641,50 @@
 
       // ===== Tuning parameters (for quick T&E) =====
       const TUNE = {
-        ribbonCount: 7,
+        ribbonCount: 5,
         accelerationFactorCoeff: 0.001,
-        wrinkleFrequency: 1.0,
-        wrinkleAmplitude: 2.0,
+        wrinkleFrequency: 0.7,
+        wrinkleAmplitude: 0.8,
         lightWiggleTimeCoeff: 1.0,
       };
 
       function makeBackgroundTexture() {
         const bg = document.createElement('canvas');
-        bg.width = 1024;
-        bg.height = 1024;
+        bg.width = 512;
+        bg.height = 512;
         const g = bg.getContext('2d');
 
         // Clear cool-white gradient for spatial depth
-        const base = g.createLinearGradient(0, 0, 1024, 1024);
+        const base = g.createLinearGradient(0, 0, 512, 512);
         base.addColorStop(0, '#ffffff');
         base.addColorStop(0.45, '#edf3fb');
         base.addColorStop(1, '#dce6f2');
         g.fillStyle = base;
-        g.fillRect(0, 0, 1024, 1024);
+        g.fillRect(0, 0, 512, 512);
 
         // Airy bloom in upper-right
-        const bloom = g.createRadialGradient(780, 220, 40, 780, 220, 520);
+        const bloom = g.createRadialGradient(390, 110, 20, 390, 110, 260);
         bloom.addColorStop(0, 'rgba(198,218,244,0.46)');
         bloom.addColorStop(0.45, 'rgba(198,218,244,0.22)');
         bloom.addColorStop(1, 'rgba(212,226,245,0.0)');
         g.fillStyle = bloom;
-        g.fillRect(0, 0, 1024, 1024);
+        g.fillRect(0, 0, 512, 512);
 
         // Cool depth from lower-left
-        const depth = g.createRadialGradient(220, 860, 80, 220, 860, 620);
+        const depth = g.createRadialGradient(110, 430, 40, 110, 430, 310);
         depth.addColorStop(0, 'rgba(166,191,224,0.40)');
         depth.addColorStop(0.5, 'rgba(166,191,224,0.18)');
         depth.addColorStop(1, 'rgba(184,204,228,0.0)');
         g.fillStyle = depth;
-        g.fillRect(0, 0, 1024, 1024);
+        g.fillRect(0, 0, 512, 512);
 
         // Gentle vertical depth haze
-        const haze = g.createLinearGradient(0, 0, 0, 1024);
+        const haze = g.createLinearGradient(0, 0, 0, 512);
         haze.addColorStop(0, 'rgba(255,255,255,0.0)');
         haze.addColorStop(0.62, 'rgba(208,222,241,0.10)');
         haze.addColorStop(1, 'rgba(188,206,230,0.18)');
         g.fillStyle = haze;
-        g.fillRect(0, 0, 1024, 1024);
+        g.fillRect(0, 0, 512, 512);
 
         const tex = new THREE.CanvasTexture(bg);
         tex.encoding = THREE.sRGBEncoding;
@@ -675,7 +721,7 @@
       renderer.domElement.style.width = '100%';
       renderer.domElement.style.height = '100%';
       renderer.setSize(viewportSize.width, viewportSize.height, false);
-      const pixelRatioCap = isIPhone ? 1.5 : 2;
+      const pixelRatioCap = isIPhone ? 1.25 : 1.5;
       renderer.setPixelRatio(Math.min(window.devicePixelRatio, pixelRatioCap));
       renderer.outputEncoding = THREE.sRGBEncoding;
       renderer.setClearColor(0xffffff, 1);
@@ -685,20 +731,20 @@
       // Lightweight procedural environment cube texture (EnvLight-like source)
       function makeFace(fill, glowX, glowY, glowR) {
         const c = document.createElement('canvas');
-        c.width = 256; c.height = 256;
+        c.width = 128; c.height = 128;
         const g = c.getContext('2d');
-        const grad = g.createLinearGradient(0, 0, 0, 256);
+        const grad = g.createLinearGradient(0, 0, 0, 128);
         grad.addColorStop(0, fill.top);
         grad.addColorStop(1, fill.bottom);
         g.fillStyle = grad;
-        g.fillRect(0, 0, 256, 256);
+        g.fillRect(0, 0, 128, 128);
 
-        const glow = g.createRadialGradient(glowX, glowY, 8, glowX, glowY, glowR);
+        const glow = g.createRadialGradient(glowX * 0.5, glowY * 0.5, 4, glowX * 0.5, glowY * 0.5, glowR * 0.5);
         glow.addColorStop(0, 'rgba(255,255,255,0.95)');
         glow.addColorStop(0.35, 'rgba(220,236,255,0.45)');
         glow.addColorStop(1, 'rgba(200,220,255,0.0)');
         g.fillStyle = glow;
-        g.fillRect(0, 0, 256, 256);
+        g.fillRect(0, 0, 128, 128);
         return c;
       }
 
@@ -855,14 +901,16 @@
           // Wind amount controlled by mouse velocity
           float windStrength = 1.0 + uMouseVelocity * 4.0;
           
-          // Wave deformation with wind-controlled amplitude
-          float wave1 = snoise(vec3(twisted.x * 0.2 * uRandomSeed, twisted.y * 0.4, uTime * 0.15 * uRandomSeed + uOffset)) * uWaveAmp * windStrength;
-          float wave2 = snoise(vec3(twisted.x * 0.4, twisted.z * 0.3, uTime * 0.1 * uRandomSeed + uOffset + 50.0)) * uWaveAmp * 0.6 * windStrength;
-          float wave3 = snoise(vec3(twisted.y * 0.5, twisted.x * 0.2, uTime * 0.08 + uOffset * uRandomSeed)) * uWaveAmp * 0.3 * windStrength;
+          // Wave deformation with wind-controlled amplitude (smoothed)
+          float wave1 = snoise(vec3(twisted.x * 0.15 * uRandomSeed, twisted.y * 0.25, uTime * 0.12 * uRandomSeed + uOffset)) * uWaveAmp * windStrength;
+          float wave2 = snoise(vec3(twisted.x * 0.25, twisted.z * 0.18, uTime * 0.08 * uRandomSeed + uOffset + 50.0)) * uWaveAmp * 0.6 * windStrength;
+          float wave3 = snoise(vec3(twisted.y * 0.3, twisted.x * 0.12, uTime * 0.06 + uOffset * uRandomSeed)) * uWaveAmp * 0.3 * windStrength;
 
-          // Fine wrinkles (higher-frequency folds)
-          float wrinkle1 = snoise(vec3(twisted.x * ${1.25 * TUNE.wrinkleFrequency} + uOffset, twisted.y * ${2.2 * TUNE.wrinkleFrequency} * uRandomSeed, uTime * 0.22 + 140.0)) * uWaveAmp * ${0.16 * TUNE.wrinkleAmplitude} * windStrength;
-          float wrinkle2 = snoise(vec3(twisted.x * ${1.8 * TUNE.wrinkleFrequency} * uRandomSeed, twisted.z * ${2.8 * TUNE.wrinkleFrequency} + uOffset, uTime * 0.27 + 280.0)) * uWaveAmp * ${0.11 * TUNE.wrinkleAmplitude} * windStrength;
+          // Soft wrinkles: sin() rounds off sharp noise peaks into smooth folds
+          float rawW1 = snoise(vec3(twisted.x * ${1.25 * TUNE.wrinkleFrequency} + uOffset, twisted.y * ${2.2 * TUNE.wrinkleFrequency} * uRandomSeed, uTime * 0.18 + 140.0));
+          float rawW2 = snoise(vec3(twisted.x * ${1.8 * TUNE.wrinkleFrequency} * uRandomSeed, twisted.z * ${2.8 * TUNE.wrinkleFrequency} + uOffset, uTime * 0.22 + 280.0));
+          float wrinkle1 = sin(rawW1 * 3.14159) * uWaveAmp * ${0.16 * TUNE.wrinkleAmplitude} * windStrength;
+          float wrinkle2 = sin(rawW2 * 3.14159) * uWaveAmp * ${0.11 * TUNE.wrinkleAmplitude} * windStrength;
           
           twisted.y += wave1 + wave3 + wrinkle1;
           twisted.z += wave2 + wrinkle2;
@@ -1005,7 +1053,7 @@
       const activeConfigs = configs.slice(0, Math.max(1, Math.min(ribbonCount, configs.length)));
 
       activeConfigs.forEach((cfg, i) => {
-        const geometry = createTwistedRibbon(cfg.width, cfg.length, cfg.twists, 210);
+        const geometry = createTwistedRibbon(cfg.width, cfg.length, cfg.twists, 240);
         const palette = palettes[cfg.color];
 
         const baseUniforms = {
