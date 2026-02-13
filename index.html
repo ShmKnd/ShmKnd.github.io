@@ -237,6 +237,16 @@
       }
     };
 
+    /* ── Preload all project images ── */
+    (function preloadProjectImages() {
+      Object.keys(projects).forEach(function (key) {
+        projects[key].images.forEach(function (src) {
+          var img = new Image();
+          img.src = src;
+        });
+      });
+    })();
+
     const sheet     = document.getElementById('sideSheet');
     const overlay   = document.getElementById('sheetOverlay');
     const btnBack   = document.getElementById('sheetBack');
@@ -459,7 +469,6 @@
           var img = document.createElement('img');
           img.src = src;
           img.alt = data.title;
-          img.loading = 'lazy';
           img.draggable = false;
           track.appendChild(img);
         });
