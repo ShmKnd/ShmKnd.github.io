@@ -136,13 +136,14 @@
       scene.background = makeBackgroundTexture();
 
       const isIPhone = /iPhone|iPod/.test(navigator.userAgent);
-      const stableViewportWidth = Math.max(1, Math.round(document.documentElement.clientWidth || window.innerWidth));
+      let stableViewportWidth = Math.max(1, Math.round(document.documentElement.clientWidth || window.innerWidth));
+      let stableViewportHeight = Math.max(1, Math.round((window.visualViewport && window.visualViewport.height) || window.innerHeight));
       function getViewportSize() {
-        if (isIPhone && window.visualViewport) {
+        if (isIPhone) {
           return {
-            // Keep width stable on iOS to avoid scrollbar/UI-bar induced jitter
+            // Keep iOS viewport stable during scroll to avoid UI-bar/scrollbar jitter
             width: stableViewportWidth,
-            height: Math.max(1, Math.round(window.visualViewport.height)),
+            height: stableViewportHeight,
           };
         }
         return {
@@ -564,6 +565,8 @@
       let lastTime = performance.now();
       let lastMousePosX = 0;
       let lastMousePosY = 0;
+      let touchStartX = 0;
+      let touchStartY = 0;
       
       function updatePointerTarget(clientX, clientY) {
         const vw = Math.max(1, viewportSize.width);
@@ -576,9 +579,19 @@
         updatePointerTarget(e.clientX, e.clientY);
       }, { passive: true });
 
+      window.addEventListener('touchstart', (e) => {
+        if (!e.touches || e.touches.length === 0) return;
+        touchStartX = e.touches[0].clientX;
+        touchStartY = e.touches[0].clientY;
+      }, { passive: true });
+
       window.addEventListener('touchmove', (e) => {
         if (!e.touches || e.touches.length === 0) return;
         const t = e.touches[0];
+        const dx = Math.abs(t.clientX - touchStartX);
+        const dy = Math.abs(t.clientY - touchStartY);
+        // Ignore mostly-vertical scroll gestures to prevent accidental horizontal wobble
+        if (dy > dx * 1.2) return;
         updatePointerTarget(t.clientX, t.clientY);
       }, { passive: true });
       
@@ -589,6 +602,7 @@
         const now = performance.now();
         const dt = (now - lastTime) / 1000; // Delta time in seconds
         const safeDt = Math.max(dt, 1 / 120);
+        const physicsDt = Math.min(safeDt, 1 / 20);
         lastTime = now;
         time += 0.016;
         
@@ -598,7 +612,7 @@
         // Calculate velocity: distance moved per frame
         const dx = mouseX - lastMousePosX;
         const dy = mouseY - lastMousePosY;
-        const currentVelocity = Math.sqrt(dx * dx + dy * dy) / safeDt;
+        const currentVelocity = Math.sqrt(dx * dx + dy * dy) / physicsDt;
         
         // Smooth velocity
         velocity += (currentVelocity - velocity) * 0.22;
@@ -607,7 +621,7 @@
         delayedVelocity += (velocity - delayedVelocity) * 0.08;
         
         // Calculate acceleration: dv/dt (change in velocity over time)
-        const rawAcceleration = (velocity - prevVelocity) / safeDt;
+        const rawAcceleration = (velocity - prevVelocity) / physicsDt;
         acceleration += (rawAcceleration - acceleration) * 0.2;
         if (Math.abs(acceleration) < 0.02) acceleration = 0;
         prevVelocity = velocity;
@@ -654,16 +668,19 @@
       
       let resizeDebounceTimer = null;
       function applyViewportResize(force = false) {
+        if (isIPhone && force) {
+          stableViewportWidth = Math.max(1, Math.round(document.documentElement.clientWidth || window.innerWidth));
+          stableViewportHeight = Math.max(1, Math.round((window.visualViewport && window.visualViewport.height) || window.innerHeight));
+        }
+        if (isIPhone && !force) {
+          // Keep fully stable during scroll on iPhone; resize only on forced events
+          return;
+        }
         const next = getViewportSize();
         if (!force) {
           const heightDiff = Math.abs(next.height - viewportSize.height);
-          if (isIPhone) {
-            // Ignore iOS width jitter while scrolling (scrollbar/UI changes)
-            if (heightDiff < 3) return;
-          } else {
-            const widthDiff = Math.abs(next.width - viewportSize.width);
-            if (widthDiff < 2 && heightDiff < 2) return;
-          }
+          const widthDiff = Math.abs(next.width - viewportSize.width);
+          if (widthDiff < 2 && heightDiff < 2) return;
         }
 
         viewportSize = next;
@@ -679,8 +696,10 @@
 
       window.addEventListener('resize', scheduleViewportResize, { passive: true });
       if (window.visualViewport) {
-        window.visualViewport.addEventListener('resize', scheduleViewportResize, { passive: true });
-        window.visualViewport.addEventListener('scroll', scheduleViewportResize, { passive: true });
+        if (!isIPhone) {
+          window.visualViewport.addEventListener('resize', scheduleViewportResize, { passive: true });
+          window.visualViewport.addEventListener('scroll', scheduleViewportResize, { passive: true });
+        }
       }
       window.addEventListener('orientationchange', () => {
         setTimeout(() => applyViewportResize(true), 220);
