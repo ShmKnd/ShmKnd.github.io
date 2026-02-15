@@ -108,11 +108,10 @@ body.sheet-open { overflow:hidden; }
   top:0; right:0; bottom:0;
   z-index:910;
   width:min(420px, 85vw);
-  background:rgba(255,255,255,0.75);
-  backdrop-filter:blur(20px) saturate(180%);
-  -webkit-backdrop-filter:blur(20px) saturate(180%);
-  border-left:1px solid rgba(255,255,255,0.5);
-  box-shadow:-4px 0 24px rgba(0,0,0,0.10);
+  background:rgba(255,255,255,0.32); /* 白寄りで透明感 */
+  backdrop-filter:blur(48px) brightness(1.08);
+  -webkit-backdrop-filter:blur(48px) brightness(1.08);
+  box-shadow:-4px 0 32px rgba(0,0,0,0.10);
   transform:translateX(100%);
   transition:transform .38s cubic-bezier(0.22, 1, 0.36, 1);
   display:flex; flex-direction:column;
@@ -124,9 +123,8 @@ body.sheet-open { overflow:hidden; }
 .sheet-nav {
   position:sticky; top:0;
   padding:16px 20px;
-  background:rgba(255,255,255,0.5);
-  backdrop-filter:blur(10px);
-  -webkit-backdrop-filter:blur(10px);
+  background:transparent;
+  border-bottom:none;
   z-index:1;
 }
 .sheet-back {
