@@ -256,7 +256,7 @@
         images: ['Assets/AudioInspector-1.webp','Assets/AudioInspector-2.webp','Assets/AudioInspector-3.webp','Assets/AudioInspector-4.webp'],
         summary: 'Visualizes global and per-source audio signal paths inside OBS, aiding in complex routing and debugging.',
         note: 'C++, Qt6, OBS Plugin API',
-        note2: '1 months development',
+        note2: '1 months of development',
         background:'複雑なOBSの音声ルーティングにおいて、初学者がトラブルの原因を特定するのは容易ではありません。また、熟練者にとっても設定の階層を辿る作業は非効率です。そこで、全音声デバイスの状態をワンクリックで診断し、状況をJSON形式のマップとしてエクスポートできるツールを構築しました。これにより、トラブルシューティングの即応性を高め、他者へのサポートも容易にする仕組みを提供しています。',
         background_en:"Navigating OBS's complex audio routing can be daunting for beginners and tedious for professionals. I built this diagnostic tool to simplify the process by generating a comprehensive JSON map of all audio device states with a single click. This significantly speeds up troubleshooting and makes it easier for users to seek or provide remote technical support.",
         links: [{ label: 'GitHub', url: 'https://github.com/ShmKnd/AudioInspector' }]
@@ -266,7 +266,7 @@
         images: ['Assets/ButterSync.webp'],
         summary: 'Redundant DAW sync system with MTC Freewheel logic. Ensures stable timecode sync across multiple applications.',
         note: 'Swift, CoreMIDI, Interface Builder',
-        note2: '3 months development',
+        note2: '3 months of development',
         background: 'ライブ演出の現場では、DAWを2台体制にする冗長化が一般的ですが、高価なハードウェアなしに「マスターが止まってもバックアップが止まらない（Jamシンク）」環境を構築するのは困難でした。ButterSyncは、MTC信号を監視し、信号途絶時に瞬時に内部時計によるフリーランへと切り替えるロジックをソフトウェアで実装しました。CoreMIDIとC++を駆使し、現場の「止まれない」要求に応える信頼性を実現しています。',
         background_en: 'In live show environments, achieving robust DAW redundancy without expensive hardware remains a challenge. ButterSync solves this by implementing "Jam-sync" logic via software, monitoring the MTC signal and instantly switching to an internal freewheeling clock if the master fails. Built with CoreMIDI and C++, it ensures seamless synchronization for mission-critical performances.',
         links: []
@@ -276,7 +276,7 @@
         images: ['Assets/ImageCaptioner-1.webp','Assets/ImageCaptioner-2.webp','Assets/ImageCaptioner-3.webp'],
         summary: 'Batch image processor with Saliency-based cropping. Automatically generates descriptive captions for large image sets.',
         note: 'Swift, CoreImage, CoreGraphics, Interface Builder, OpenCV',
-        note2: '3 months development',
+        note2: '3 months of development',
         background: 'インスタグラム投稿用の画像編集において、正方形へのトリミングやEXIF情報の文字入れは、手動で行うにはあまりに反復的な作業です。このアプリは、OpenCVのサリエンシー解析を用いて写真の「注目点」を自動で中央に配置し、さらに背景の明度を判別してEXIFのフォント色を自動調整するインテリジェンスを備えています。Swiftによるネイティブ実装で、大量の画像もバッチ処理で瞬時に最適化することが可能です。',
         background_en: 'Preparing photos for Instagram—cropping to squares and adding EXIF metadata—is often a repetitive chore. This macOS native app automates the process using OpenCV saliency analysis to keep the visual focus centered, while intelligently adjusting font colors based on background luminosity. Built with Swift, it provides a high-speed batch workflow that allows creators to spend more time shooting and less time editing.',
         links: []
