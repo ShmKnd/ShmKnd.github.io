@@ -47,9 +47,10 @@ a {
 a:hover,
 a:focus-visible {
   border-bottom-color:rgba(0,119,204,0.8);
-  color:#00213c;
+  color:#00569c;
+  filter:brightness(1.2);
   background-position:170% 0;
-  transition:color .22s ease-out, border-bottom-color .22s ease-out, background-position .65s cubic-bezier(0.22, 1, 0.36, 1);
+  transition:font-size .22s ease-out, color .22s ease-out, border-bottom-color .22s ease-out, background-position .65s cubic-bezier(0.22, 1, 0.36, 1);
 }
 
 .project-list { margin-left:0.6em; }
