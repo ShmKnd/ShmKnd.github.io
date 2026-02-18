@@ -177,7 +177,7 @@ DAW（Master） → Network → Backup Mac → ButterSync → DAW
 
 代替案としてLTC（libltc利用やネイティブ生成）も検討したが、計算コストや安定性の観点からMTC（MIDI Time Code）ベースに方針を決定した。
 
-CoreMIDIとC++を用いて実装。
+CoreMIDIとSwiftを用いて実装。
 MTC仕様（Full Frame / Quarter Frame）、各DAWの送出仕様、受信時の挙動を実機検証しながら解析した。MIDI Monitorを用いて実際のメッセージ内容を確認し、挙動差を検証。
 
 ロジックはシンプルで、
@@ -250,7 +250,7 @@ Vision Frameworkを使わなかった理由は、将来的なWindows移植可能
 
 本プロジェクトは、macOSネイティブ開発、画像処理パイプライン設計、OpenCVビルド構造理解を深める実践的研究となった。
 
-加えて、ライブラリ依存、ビルド方式（Framework / dylib）、CMake、署名、Run Scriptによる配置制御など、これまでエンジニア間の会話で概念として耳にしていた技術要素を、非エンジニア出身の立場から初めて実践的に扱う機会となった。` },
+加えて、ライブラリ依存、ブリッジ、ビルド方式（Framework / dylib）、CMake、署名、Run Scriptによる配置制御など、これまでエンジニア間の会話で概念として耳にしていた技術要素を、非エンジニア出身の立場から初めて実践的に扱う機会となった。` },
     links: []
   }
 };
