@@ -24,7 +24,7 @@ window.PROJECTS = {
     歌詞はCSV形式に整形し、TouchDesignerでTable DATとして読み込んだ。複数曲分を事前にロードし、Table DAT Switchで切り替える構成とした。各テーブルには「index CC値」「歌詞テキスト」「スケール倍率」を持たせ、Text TOPで描画した。
 
 MIDI CCの値変化をTrigger CHOPで検出し、イーズやグローなどのポストエフェクトを加えた。生成した歌詞ピクセルは複製してScreen合成し、色調補正を行うことで単調さを抑えた。将来的なVJ運用を想定し、インタラクティブなポストエフェクトと複数の背景モードも実装した。出力はTouchDesignerのView機能を用いた。`,
-      result: ''
+      result: 'DAWと同期した、柔軟なリアルタイム歌詞描画を実現した。CSVベースの構造化により拡張性を確保し、インタラクティブな運用にも対応可能な設計とした。将来的な拡張性も考慮し、複数曲の管理や多様なエフェクトの追加も容易な構成となっている。'
     },
     links: []
   },
@@ -39,9 +39,9 @@ MIDI CCの値変化をTrigger CHOPで検出し、イーズやグローなどの�
     background: '',
     background_en: '',
     process: {
-      context: 'Surveyed model tradeoffs and runtime constraints; prioritized lightweight, real-time-capable networks suitable for live camera input.',
-      approach: 'Prototyped depth estimation (MiDaS-like) for layered parallax compositing. Integrated YOLO-based detection converted to ONNX and mapped detections to visual overlays and control channels. Optimized inference using ONNX Runtime (FP16) and batched pre/post-processing to stabilize framerate.',
-      result: 'Real-time layered visual outputs for TouchDesigner with robust detection fallbacks and consistent runtime performance.'
+      context: 'TouchDesigner 2025でPython環境の構築が容易になった。過去にMac環境でPython連携を試したが、デフォルトPythonの仕様により安定しなかった経緯がある。2025環境であれば改善している可能性があると考え、自主制作として検証を行った。TouchDesignerには標準でDepth Estimationを行うオブジェクトが存在しないため、自作する必要があった。SegmentationについてはBlobベースの機能はあるが、より汎用的かつ拡張可能な構成をPythonで試したかった。',
+      approach: '実装自体はAIコーディングを活用した。ただし、SegmentationモデルかDetectionモデルか、ONNXかPyTorchかといった理解が浅かったために、ライブラリ仕様やモデル構造の理解を進めながら構築した。速度面ではONNXが有利で、1280×720で60fpsを維持できることを確認した。一方で今回はクオリティを優先し、あえてPyTorch+MPSを選択して実装した。',
+      result: 'Depth EstimationおよびSegmentationをTouchDesigner内で扱うコンポーネントを構築した。同時に、Python上でのAIモデルの扱い方に対する理解を深める実践的な学習となった。一方で、1280×720でもリアルタイム動作時に60fpsを下回る場合があり、MacBook Pro 2023 M3環境におけるボトルネックの切り分け（マシンスペック、OS、GPUアーキテクチャの差異など）が今後の課題である。'
     },
     links: []
   },
@@ -60,7 +60,10 @@ MIDI CCの値変化をTrigger CHOPで検出し、イーズやグローなどの�
     note: 'GLSL, TouchDesigner',
     background: '',
     background_en: '',
-    process: { context: '', approach: '', result: '' },
+    process: { 
+        context: 'TouchDesignerにはGLSLを記述できるオブジェクトがある。以前から挑戦したいと考えていたが、GLSLの知識がなかったため、まず基礎的なリサーチを行った。既存のISFやGLSLコードを参照し、それらをAIに読み込ませて移植・実装を試みた。', 
+        approach: '初期段階では、TouchDesigner特有のGLSL記述ルールやパラメータ処理の違いにより、すぐに動作するものは少なかった。しかし移植と検証を繰り返す中で、パラメータを外部に公開する方法や、vectorなどGLSL特有の概念を理解できるようになった。その後は、自ら仕様と要件を定義した上でAIコーディングを活用し、GLSLによるImage FilterおよびGeneratorを制作。再利用可能な形でストックしている。', 
+        result: 'TouchDesigner環境に適応したGLSL実装手法を確立した。基礎理解を前提に、仕様設計から生成までを行うワークフローを構築し、リアルタイム用途に対応可能なシェーダー群を蓄積している。' },
     links: []
   },
   'echogentleman': {
@@ -71,7 +74,30 @@ MIDI CCの値変化をTrigger CHOPで検出し、イーズやグローなどの�
     note2: '5 months development',
     background: '既存のアナログディレイ・プラグインは、ギタリスト向けのシンプルだがモノラルなものか、エンジニア向けの多機能だが複雑すぎるものの二極化が進んでいました。EchoGentleManは、Strymon TIMELINEのような直感的な操作性と、現代的なステレオ処理の精密さを両立させたプロダクトです。JUCEとC++を用い、SIMDによる高速化を施すことで、音楽的な「旨味」とデジタル特有の利便性を一つのパッケージに凝縮しました。',
     background_en: 'Most analog delay plugins are either too simplistic for engineers or too complex for guitarists. EchoGentleMan bridges this gap, inspired by the intuitive yet precise philosophy of the Strymon TIMELINE. Developed with JUCE and C++, and optimized with SIMD, it delivers high-fidelity stereo processing with the effortless workflow of a classic hardware pedal.',
-    process: { context: '', approach: '', result: '' },
+    process: { 
+        context: `アナログディレイのモデリングプラグインは既に多数存在している。
+
+1つは、AmplitubeやGuitar Rigのようなギタリスト向けアンプシミュレータ内蔵型。シンプルだがモノラルで重く、エンジニア用途には不便な点が多い。
+
+2つ目は、エンジニア向けの多機能型。パラメータが多く、即座に使うには複雑で、プリセットもピーキーなものが多い。
+
+3つ目は、最低限の機能しか持たないインサート型で、アナログディレイらしさが薄い。
+
+この状況の中で、知人が所有するStrymon TimelineやElectro-Harmonix Deluxe Memory Manを見て、ハードウェア特有の直感的な操作性とアナログディレイの質感を両立したプラグインがあれば差別化できるのではないかと考え、制作を開始した。また、JUCEとC++が必要なためこれまで着手できなかったが、AIの進化により自身のオーディオ知識を活かして実装できるのではないかという実験的側面もあった。`, 
+approach: `JUCEとC++を用いて開発を開始。READMEに記載の通り、Phase構造によるモジュール分離を行い、配線（PluginProcessor）とDSPモジュール群を明確に分離した。
+
+BBD段数解決、フィードバック経路、コンパンダ、トーン整形、ステレオ処理、レベルモード管理などを段階的にモジュール化し、内部は電圧ドメインで処理。
+
+オーバーサンプリング経路を実装し、SIMD最適化を適用。供給電圧や経年劣化、コンパンダ挙動などを組み込み、アナログ的挙動を再構成した。
+
+UI面では、ハードウェア的な直感性を意識し、操作子を整理。ギタリストにもエンジニアにも扱えるバランスを目指した。
+
+実装過程ではAIコーディングを活用しつつ、パラメータ設計や信号フロー、電圧スケールの整合性は自身で設計した。`, 
+result: `アナログディレイの音楽的な質感と、現代的なステレオ処理・デジタルの利便性を両立したプラグインを構築した。
+
+ギタリスト向けの直感性と、エンジニア用途に耐える拡張性を一つの設計に統合。
+
+JUCE/C++によるオーディオプラグイン開発、AIを活用した実装ワークフロー、BBDモデリングと電圧ベース設計の理解を深める実験的プロジェクトとなった。` },
     links: [{ label: 'Payhip', url: 'https://payhip.com/b/XqglK' }]
   },
   'master-level-meter': {
@@ -82,7 +108,20 @@ MIDI CCの値変化をTrigger CHOPで検出し、イーズやグローなどの�
     note2: '3 months development',
     background: 'OBS Studioには標準で最終出力を監視するマスターバスが存在しないため、配信全体の音量バランスを正確に把握することが困難でした。この課題を解決するため、トラック1〜6のレベルを統合的に監視し、Peak/RMSに加えて放送基準のLUFS値をリアルタイムで表示するプラグインを開発しました。AIとの共同開発により、仕様策定から2ヶ月という短期間でユニバーサルバイナリ化とGitHubでの公開を実現しています。',
     background_en: 'OBS Studio lacks a native master bus, making it difficult to maintain consistent volume levels across a stream. To address this, I developed a plugin that monitors all six tracks simultaneously, providing real-time Peak, RMS, and LUFS visualization. By leveraging AI-assisted coding, I moved from specification to a cross-platform GitHub release within just two months.',
-    process: { context: '', approach: '', result: '' },
+    process: { 
+        context: `OBS Studioには最終出力を統合的に監視するマスターバスが標準搭載されておらず、配信全体の音量バランスを正確に把握することが難しい状況があった。
+
+YouTubeやTwitchの配信では、BGMが過大・ゲーム音が小さい・全体音量が基準に達していないなど、音量設計の弱さが散見された。自身がOBSを操作・指導する中でも、最終出力レベルが可視化されない点は明確な不満だった。
+
+世界的にも同様の不満が共有されていることを確認し、制作を開始した。`,
+        approach: `トラック1〜6を統合監視し、Peak / RMSに加え放送基準のLUFSをリアルタイム表示するプラグインを設計。
+
+OBSのfront-end APIやQt6依存関係の理解から着手し、obsplugin-templateをベースに環境を構築。既存のOSSプラグインのソースを解析し、Dock化の仕組みや内部構造を学習・吸収した。
+
+AIとの共同開発により仕様策定から実装までを高速化し、約2ヶ月でユニバーサルバイナリ化およびGitHub公開を実現した。`,
+        result: `OBS内で配信全体の音量を一元管理できるマスターバスメーターを実装。
+
+配信者が放送基準に基づいた客観的な音量管理を行える環境を提供し、実務的な課題解決とOSS公開までを完遂したプロジェクトとなった。` },
     links: [{ label: 'GitHub', url: 'https://github.com/ShmKnd/MasterLevelMeter' }]
   },
   'audio-inspector': {
@@ -98,7 +137,8 @@ MIDI CCの値変化をTrigger CHOPで検出し、イーズやグローなどの�
     note2: '1 months of development',
     background: '複雑なOBSの音声ルーティングにおいて、初学者がトラブルの原因を特定するのは容易ではありません。また、熟練者にとっても設定の階層を辿る作業は非効率です。そこで、全音声デバイスの状態をワンクリックで診断し、状況をJSON形式のマップとしてエクスポートできるツールを構築しました。これにより、トラブルシューティングの即応性を高め、他者へのサポートも容易にする仕組みを提供しています。',
     background_en: "Navigating OBS's complex audio routing can be daunting for beginners and tedious for professionals. I built this diagnostic tool to simplify the process by generating a comprehensive JSON map of all audio device states with a single click. This significantly speeds up troubleshooting and makes it easier for users to seek or provide remote technical support.",
-    process: { context: '', approach: '', result: '' },
+    process: { 
+        context: '', approach: '', result: '' },
     links: [{ label: 'GitHub', url: 'https://github.com/ShmKnd/AudioInspector' }]
   },
   'buttersync': {
