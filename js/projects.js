@@ -84,9 +84,9 @@ MIDI CCの値変化をTrigger CHOPで検出し、イーズやグローなどの�
 3つ目は、最低限の機能しか持たないインサート型で、アナログディレイらしさが薄い。
 
 この状況の中で、知人が所有するStrymon TimelineやElectro-Harmonix Deluxe Memory Manを見て、ハードウェア特有の直感的な操作性とアナログディレイの質感を両立したプラグインがあれば差別化できるのではないかと考え、制作を開始した。また、JUCEとC++が必要なためこれまで着手できなかったが、AIの進化により自身のオーディオ知識を活かして実装できるのではないかという実験的側面もあった。`, 
-approach: `JUCEとC++を用いて開発を開始。READMEに記載の通り、Phase構造によるモジュール分離を行い、配線（PluginProcessor）とDSPモジュール群を明確に分離した。
+approach: `JUCEとC++を用いて開発を開始。Phase構造によるモジュール分離を行い、配線（PluginProcessor）とDSPモジュール群を明確に分離した。
 
-BBD段数解決、フィードバック経路、コンパンダ、トーン整形、ステレオ処理、レベルモード管理などを段階的にモジュール化し、内部は電圧ドメインで処理。
+BBD段数解決、フィードバック経路、コンパンダ、トーン整形、ステレオ処理、レベルモード管理などを段階的にモジュール化し、内部は電圧ドメインで処理することで実際にアナログ回路の挙動を再現した。
 
 オーバーサンプリング経路を実装し、SIMD最適化を適用。供給電圧や経年劣化、コンパンダ挙動などを組み込み、アナログ的挙動を再構成した。
 
@@ -94,10 +94,9 @@ UI面では、ハードウェア的な直感性を意識し、操作子を整理
 
 実装過程ではAIコーディングを活用しつつ、パラメータ設計や信号フロー、電圧スケールの整合性は自身で設計した。`, 
 result: `アナログディレイの音楽的な質感と、現代的なステレオ処理・デジタルの利便性を両立したプラグインを構築した。
-
 ギタリスト向けの直感性と、エンジニア用途に耐える拡張性を一つの設計に統合。
 
-JUCE/C++によるオーディオプラグイン開発、AIを活用した実装ワークフロー、BBDモデリングと電圧ベース設計の理解を深める実験的プロジェクトとなった。` },
+JUCE/C++によるオーディオプラグイン開発、AIを活用した実装ワークフロー、BBDモデリングと電圧ベース設計、Win/Macを横断するプラグインビルド、マルチプラットフォームの対応の難しさの知見を深める実験的プロジェクトとなった。` },
     links: [{ label: 'Payhip', url: 'https://payhip.com/b/XqglK' }]
   },
   'master-level-meter': {
@@ -121,7 +120,7 @@ OBSのfront-end APIやQt6依存関係の理解から着手し、obsplugin-templa
 AIとの共同開発により仕様策定から実装までを高速化し、約2ヶ月でユニバーサルバイナリ化およびGitHub公開を実現した。`,
         result: `OBS内で配信全体の音量を一元管理できるマスターバスメーターを実装。
 
-配信者が放送基準に基づいた客観的な音量管理を行える環境を提供し、実務的な課題解決とOSS公開までを完遂したプロジェクトとなった。` },
+配信者が放送基準に基づいた客観的な音量管理を行える環境を提供し、実務的な課題解決とOSS公開までを完遂したプロジェクトとなった。また思わぬ副次的効果として、OBSのマスターバスの仕様理解が深まり、OBSがマスターバスにエフェクトをサポートしていないAPI上の仕様も知ることができた` },
     links: [{ label: 'GitHub', url: 'https://github.com/ShmKnd/MasterLevelMeter' }]
   },
   'audio-inspector': {
@@ -138,7 +137,21 @@ AIとの共同開発により仕様策定から実装までを高速化し、約
     background: '複雑なOBSの音声ルーティングにおいて、初学者がトラブルの原因を特定するのは容易ではありません。また、熟練者にとっても設定の階層を辿る作業は非効率です。そこで、全音声デバイスの状態をワンクリックで診断し、状況をJSON形式のマップとしてエクスポートできるツールを構築しました。これにより、トラブルシューティングの即応性を高め、他者へのサポートも容易にする仕組みを提供しています。',
     background_en: "Navigating OBS's complex audio routing can be daunting for beginners and tedious for professionals. I built this diagnostic tool to simplify the process by generating a comprehensive JSON map of all audio device states with a single click. This significantly speeds up troubleshooting and makes it easier for users to seek or provide remote technical support.",
     process: { 
-        context: '', approach: '', result: '' },
+        context: `OBSの音声ルーティングは構造が複雑で、初学者がトラブルの原因を特定するのは容易ではない。また、熟練者であっても階層の深い設定を辿る必要があり、確認作業は非効率になりがちである。
+
+特に、環境設定内のグローバル音声デバイスが意図せず影響していたり、大量のソースを含むシーンで「どのソースが実際に音を出しているのか」が把握しづらいという問題がある。
+
+MasterLevelMeterの開発でOBSフロントAPIへの理解が進んだことを踏まえ、同様に音声トラブル解決に特化したプラグインの自主制作を行った。`, 
+        approach: `全音声デバイスとソースの状態をワンクリックで診断し、「現在音を出しているソース／インプットデバイス」を常時可視化する仕組みを設計。
+
+OBS front-end APIを用いて内部状態を取得し、Qt6経由でJSON形式のマップとしてエクスポート可能にした。単なる機能実装にとどまらず、Qt6からJSONを書き出す構造やデータフローの理解を目的とした設計も行った。
+
+既存のMasterLevelMeter開発時の知見やHowToを再利用し、AIの補助を受けながら約1ヶ月でプロトタイプを構築した。`, 
+        result: `OBSの複雑な音声フローを即座に可視化し、トラブルの原因特定を迅速化する診断ツールを実装。
+
+JSONエクスポートにより状態共有が容易になり、他者サポートや業務用途における即応性を向上させた。
+
+OBSプラグイン開発の再現性を高めつつ、内部構造理解と実装スピードの両立を達成したプロジェクトとなった。` },
     links: [{ label: 'GitHub', url: 'https://github.com/ShmKnd/AudioInspector' }]
   },
   'buttersync': {
@@ -149,7 +162,38 @@ AIとの共同開発により仕様策定から実装までを高速化し、約
     note2: '3 months of development',
     background: 'ライブ演出の現場では、DAWを2台体制にする冗長化が一般的ですが、高価なハードウェアなしに「マスターが止まってもバックアップが止まらない（Jamシンク）」環境を構築するのは困難でした。ButterSyncは、MTC信号を監視し、信号途絶時に瞬時に内部時計によるフリーランへと切り替えるロジックをソフトウェアで実装しました。CoreMIDIとC++を駆使し、現場の「止まれない」要求に応える信頼性を実現しています。',
     background_en: 'In live show environments, achieving robust DAW redundancy without expensive hardware remains a challenge. ButterSync solves this by implementing "Jam-sync" logic via software, monitoring the MTC signal and instantly switching to an internal freewheeling clock if the master fails. Built with CoreMIDI and C++, it ensures seamless synchronization for mission-critical performances.',
-    process: { context: '', approach: '', result: '' },
+    process: { 
+      context: `ライブ／ショー現場では、DAWを2台体制にする冗長構成が一般的だが、「マスターが停止してもバックアップが止まらない」Jam Sync環境を構築するには高価なハードウェアが必要だった。
+
+代表例としてMOTUのJamSync対応オーディオI/Oがあるが、1台10万円以上する機材を2台揃えるのは現実的な負担が大きい。
+
+ライブマニピュレーション業務の中で冗長性の重要性を体感していたことから、「ハードウェアに依存せず、ソフトウェアで代替できないか」という発想で本プロジェクトを開始した。
+
+主要DAW（Logic / Cubase / Digital Performer / Pro Tools）を調査したところ、Jam Sync相当機能はほぼ未実装で、例外的にReaperのみが対応していた。
+`, 
+      approach: `Mac標準のNetwork MIDIを活用し、
+DAW（Master） → Network → Backup Mac → ButterSync → DAW
+という構成を設計。
+
+代替案としてLTC（libltc利用やネイティブ生成）も検討したが、計算コストや安定性の観点からMTC（MIDI Time Code）ベースに方針を決定した。
+
+CoreMIDIとC++を用いて実装。
+MTC仕様（Full Frame / Quarter Frame）、各DAWの送出仕様、受信時の挙動を実機検証しながら解析した。MIDI Monitorを用いて実際のメッセージ内容を確認し、挙動差を検証。
+
+ロジックはシンプルで、
+	•	MTC受信時に内部クロックを生成して並走
+	•	指定ミリ秒間MTCが途絶した場合、内部クロックへ即時フェイルオーバー
+
+というフリーラン切替方式を採用した。
+
+実装はAIコーディングを活用しつつ、仕様設計と検証は自身で主導した。`, 
+      result: `ソフトウェアのみでJam Sync的挙動を実現するプロトタイプを構築。
+
+Digital Performer同士の構成では安定動作を確認し、インハウス用途で運用している。
+
+一方で、LogicのMTC挙動が特殊で、ButterSync経由時にテンポ異常やロケーター移動が発生する問題があり、現時点では公開を見送っている。
+
+本プロジェクトは、AIコーディングを本格的に導入する契機となった開発であり、CoreMIDI、MTC仕様理解、DAW間同期挙動の実証検証を通じて、ライブ現場の「止まれない」要件をソフトウェアで再解釈する試みとなった。` },
     links: []
   },
   'image-captioner': {
@@ -168,7 +212,45 @@ AIとの共同開発により仕様策定から実装までを高速化し、約
     note2: '3 months of development',
     background: 'インスタグラム投稿用の画像編集において、正方形へのトリミングやEXIF情報の文字入れは、手動で行うにはあまりに反復的な作業です。このアプリは、OpenCVのサリエンシー解析を用いて写真の「注目点」を自動で中央に配置し、さらに背景の明度を判別してEXIFのフォント色を自動調整するインテリジェンスを備えています。Swiftによるネイティブ実装で、大量の画像もバッチ処理で瞬時に最適化することが可能です。',
     background_en: 'Preparing photos for Instagram—cropping to squares and adding EXIF metadata—is often a repetitive chore. This macOS native app automates the process using OpenCV saliency analysis to keep the visual focus centered, while intelligently adjusting font colors based on background luminosity. Built with Swift, it provides a high-speed batch workflow that allows creators to spend more time shooting and less time editing.',
-    process: { context: '', approach: '', result: '' },
+    process: { 
+      context: `Instagram投稿用の画像編集では、正方形トリミングやEXIF情報の文字入れが反復的かつ手動作業に依存している。
+
+近年、EXIF情報をフレーム化してSNS投稿するスタイルがフォトグラファー間で広まっているが、多くはスマホアプリ前提のワークフローである。RAWや高画質JPGをスマホへ転送する工程に非効率さを感じ、Macネイティブで完結するツールの開発を着想した。
+
+同時に、以下の技術的探究も目的とした。
+- 4:3や16:9写真を最適にスクエアへフィットさせる方法
+- Cocoa環境でのOpenCV / CoreImage / CoreGraphics連携
+- Interface Builder習熟
+- 画像フィルターの内部構造理解
+-EXIFメタデータの保存構造の把握
+
+映像制作で日常的に扱う技術の深部理解を目的とした、自主的な研究開発プロジェクトである。`,
+ approach: `SwiftによるmacOSネイティブアプリとして実装。
+
+OpenCVのサリエンシー解析を用いて写真の注目点を自動検出し、正方形フレーム内で中心配置。さらに背景の明度を解析し、EXIF文字色を自動調整するロジックを設計した。大量画像のバッチ処理にも対応している。
+
+Vision Frameworkを使わなかった理由は、将来的なWindows移植可能性を見据え、OpenCVベースで構築する方針を選択したため。
+
+開発ではOpenCVのmacOSビルドに大きく苦戦した。
+	-	公式Framework配布が存在しない
+	-	Homebrew版ではopencv_contrib（saliencyモジュール）が含まれない
+	-	Framework形式ビルドが失敗
+	-	最終的にCMakeによるdylibビルドへ移行
+	-	Xcodeへラップして組み込み
+	-	Developer ID署名対応
+	-	Build PhasesのRun ScriptでFrameworksへ強制コピー
+
+依存関係の解決とビルド環境構築そのものが重要な学習対象となった。`, 
+ result: `サリエンシー解析による自動中央配置とEXIF自動レイアウトを実装し、ほぼ要求を満たす実用アプリを完成。
+
+一方で、
+	-	フィルター適用後にサリエンシー判定が変化する設計上のバグ
+	-	OpenCV由来のやや旧式なサリエンシーモデル
+といった課題が残っているため、現状はインハウスツールとして運用している（修正予定）。
+
+本プロジェクトは、macOSネイティブ開発、画像処理パイプライン設計、OpenCVビルド構造理解を深める実践的研究となった。
+
+加えて、ライブラリ依存、ビルド方式（Framework / dylib）、CMake、署名、Run Scriptによる配置制御など、これまでエンジニア間の会話で概念として耳にしていた技術要素を、非エンジニア出身の立場から初めて実践的に扱う機会となった。` },
     links: []
   }
 };

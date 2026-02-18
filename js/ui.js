@@ -258,10 +258,19 @@
       if (!markdown || !markdown.toString().trim()) return frag;
       var lines = markdown.replace(/\t/g, '  ').split(/\r?\n/);
 
-      var stack = [{ type: 'root', el: frag, indent: -1 }];
       var para = null;
+      // currentList tracks the active list element (ul/ol) and its indent level
+      var currentList = null;
+      var currentListIndent = -1;
+      var currentListTag = '';
 
-      function closeParagraph() { if (para) { para = null; } }
+      function closeParagraph() { para = null; }
+
+      function closeList() {
+        currentList = null;
+        currentListIndent = -1;
+        currentListTag = '';
+      }
 
       lines.forEach(function (raw) {
         var line = raw.replace(/\s+$/, '');
@@ -275,35 +284,31 @@
           var indent = m[1].length;
           var marker = m[2];
           var text = m[3];
-
-          var parent = stack[stack.length - 1];
-          while (parent && indent <= parent.indent) {
-            stack.pop();
-            parent = stack[stack.length - 1];
-          }
-
-          var listEl;
           var listType = /\d+\./.test(marker) ? 'ol' : 'ul';
-          if (parent.type === 'list' && parent.listTag === listType) {
-            listEl = parent.el;
-          } else {
-            listEl = document.createElement(listType);
-            parent.el.appendChild(listEl);
-            stack.push({ type: 'list', el: listEl, indent: indent, listTag: listType });
+
+          closeParagraph();
+
+          // Reuse existing list if same indent and same type, otherwise start a new one
+          if (!currentList || indent !== currentListIndent || listType !== currentListTag) {
+            currentList = document.createElement(listType);
+            currentListIndent = indent;
+            currentListTag = listType;
+            frag.appendChild(currentList);
           }
 
           var li = document.createElement('li');
           li.textContent = text;
-          stack[stack.length - 1].el.appendChild(li);
-          stack.push({ type: 'li', el: li, indent: indent });
-          closeParagraph();
+          currentList.appendChild(li);
           return;
         }
+
+        // Non-list line: close any active list
+        closeList();
 
         if (!para) {
           para = document.createElement('p');
           para.textContent = line.trim();
-          stack[stack.length - 1].el.appendChild(para);
+          frag.appendChild(para);
         } else {
           para.textContent += ' ' + line.trim();
         }
