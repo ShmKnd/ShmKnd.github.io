@@ -1,0 +1,5 @@
+id,enabled,order,title,tags,card_label,cover,images,youtube,video,summary,note,note2,background,background_en,context,approach,result,links
+sample-photo,0,100,Sample Photo Series,visual photo,Visual · Photo,assets/media/photo/cover.webp,assets/media/photo/01.webp | assets/media/photo/02.webp | assets/media/photo/03.webp,,,Photo series description.,"Photography, Retouching",,,,,,,
+sample-youtube,0,110,Sample Movie,visual movie,Visual · Movie,,,https://youtu.be/VIDEO_ID,,Movie description.,"Direction, Editing",,,,,,,
+sample-local-video,0,120,Sample Local Video,visual movie,Visual · Movie,assets/media/movie/cover.webp,,,assets/media/movie/sample.mp4,Self-hosted video example.,,,,,,,,
+sample-product,0,130,Sample Product,product technology,Product · Technology,assets/media/projects/sample-product/cover.webp,assets/media/projects/sample-product/01.webp | assets/media/projects/sample-product/02.webp,https://youtu.be/VIDEO_ID,,Product description.,"C++, JUCE",,,,,,,Website::https://example.com | GitHub::https://github.com/example

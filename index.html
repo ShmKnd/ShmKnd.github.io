@@ -3,146 +3,58 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Shoma Kondo – Technical Visual / Interactive</title>
-  <link rel="stylesheet" href="style.css" />
-  <!-- Material Symbols (Google Fonts) for caret icons -->
+  <meta name="description" content="Shoma Kondo portfolio — visual work, creative technology and product development." />
+  <title>Shoma Kondo — Portfolio</title>
+  <link rel="stylesheet" href="assets/css/style.css" />
   <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,400,0,0" rel="stylesheet" />
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
 </head>
-<!-- Google tag (gtag.js) -->
-<script async src="https://www.googletagmanager.com/gtag/js?id=G-FHSNJMEPVR"></script>
-<script>
-  window.dataLayer = window.dataLayer || [];
-  function gtag(){dataLayer.push(arguments);}
-  gtag('js', new Date());
-
-  gtag('config', 'G-FHSNJMEPVR');
-</script>
 <body>
-  <div id="three-bg"></div>
   <main>
-    <header>
-      <h1>Shoma Kondo</h1>
-      <p class="role">
-        Technical Visual / Interactive<br />
-        TouchDesigner · Audio · AI · Prototyping
-      </p>
+    <header class="site-header" id="home">
+      <a class="identity" href="#home" aria-label="Shoma Kondo home">Shoma Kondo</a>
+      <nav class="top-nav" aria-label="Primary navigation">
+        <a href="#work">Work</a>
+        <a href="#about">About</a>
+        <a href="https://github.com/ShmKnd" target="_blank" rel="noopener">GitHub</a>
+        <a href="https://plugin.soundrave.org/" target="_blank" rel="noopener">SoundRave</a>
+      </nav>
     </header>
-    <section>
-      <!-- Japanese -->
-      <p>
-        映像・音響制作のバックグラウンドを持ち、<br />
-        リアルタイム映像、インタラクティブ表現、<br />
-        知覚系技術を用いたAI駆動型のプロトタイピングを行っています。
-      </p>
-      <p>
-        企画意図を構造化し、技術仕様として落とし込み、<br />
-        実装まで持っていく役割を得意としています。
-      </p>
-      <!-- English -->
-      <p class="en">
-        With a background in video and audio production,<br />
-        I work on prototyping using real-time visuals,<br />
-        interactive systems, and AI / perceptual technologies.
-      </p>
-      <p class="en">
-        I specialize in structuring creative intentions,<br />
-        translating them into technical specifications,<br />
-        and carrying projects through to implementation.
-      </p>
+
+    <section class="work-section" id="work" aria-label="Portfolio work">
+      <div class="filter-bar" role="toolbar" aria-label="Filter portfolio">
+        <button class="filter-chip is-active" type="button" data-filter="all" aria-pressed="true">All</button>
+        <button class="filter-chip" type="button" data-filter="visual" aria-pressed="false">Visual</button>
+        <button class="filter-chip" type="button" data-filter="technology" aria-pressed="false">Technology</button>
+        <button class="filter-chip" type="button" data-filter="product" aria-pressed="false">Product</button>
+        <button class="filter-chip" type="button" data-filter="photo" aria-pressed="false">Photo</button>
+        <button class="filter-chip" type="button" data-filter="movie" aria-pressed="false">Movie</button>
+      </div>
+
+      <div class="work-grid" id="workGrid" aria-live="polite"></div>
+
+      <p class="empty-state" id="emptyState" hidden>No work has been added to this category yet.</p>
     </section>
-    <section>
-      <h2>PROJECTS</h2>
 
-      <h3>Performance Systems &amp; Interactive (TouchDesigner / MaxMSP)</h3>
-      <ul class="project-list">
-        <li>
-          <a href="#" class="project-link" data-project="lyrics-sync">
-            <span class="project-title">Automated Lyrics Sync System</span>
-            <span class="project-desc">ー CSV-based real-time lyric rendering via MIDI CC.</span>
-          </a>
-        </li>
-        <li>
-          <a href="#" class="project-link" data-project="ai-visual">
-            <span class="project-title">AI-Driven Visual Objects</span>
-            <span class="project-desc">ー Custom TD components for Depth Estimation and Saliency using Python.</span>
-          </a>
-        </li>
-        <li>
-          <a href="#" class="project-link" data-project="glsl-shaders">
-            <span class="project-title">GLSL Shader Collection</span>
-            <span class="project-desc">ー Custom GLSL shaders for real-time procedural and color effects.</span>
-          </a>
-        </li>
-      </ul>
-
-      <h3>AudioUnits / VST Plugins</h3>
-      <ul class="project-list">
-        <li>
-          <a href="#" class="project-link" data-project="echogentleman">
-            <span class="project-title">EchoGentleMan</span>
-            <span class="project-desc">ー High-precision Analog BBD Delay.</span>
-          </a>
-        </li>
-      </ul>
-
-      <h3>Broadcast &amp; Streaming Tools</h3>
-      <ul class="project-list">
-        <li>
-          <a href="#" class="project-link" data-project="master-level-meter">
-            <span class="project-title">MasterLevelMeter</span>
-            <span class="project-desc">ー Integrated master bus monitoring for OBS.</span>
-          </a>
-        </li>
-        <li>
-          <a href="#" class="project-link" data-project="audio-inspector">
-            <span class="project-title">Audio Inspector</span>
-            <span class="project-desc">ー Visualizing global/source audio signal paths.</span>
-          </a>
-        </li>
-      </ul>
-
-      <h3>Utility &amp; Workflow (Internal)</h3>
-      <ul class="project-list">
-        <li>
-          <a href="#" class="project-link" data-project="buttersync">
-            <span class="project-title">ButterSync</span>
-            <span class="project-desc">ー Redundant DAW sync system with MTC Freewheel logic.</span>
-          </a>
-        </li>
-        <li>
-          <a href="#" class="project-link" data-project="image-captioner">
-            <span class="project-title">Image Captioner</span>
-            <span class="project-desc">ー Batch image processor with Saliency-based cropping.</span>
-          </a>
-        </li>
-      </ul>
-
-      <h3>Motion / Compositing (DCCs)</h3>
+    <section class="about" id="about" aria-labelledby="about-title">
+      <h2 id="about-title">About</h2>
+      <div class="about-body">
+        <p>Shoma Kondo</p>
+        <p>映像制作、リアルタイム表現、ソフトウェア／DSP開発、制作支援ツールの設計・実装に取り組んでいます。</p>
+      </div>
+      <div class="about-links">
+        <a href="https://github.com/ShmKnd" target="_blank" rel="noopener">GitHub ↗</a>
+        <a href="https://note.com/sr_shoma" target="_blank" rel="noopener">Notes ↗</a>
+        <a href="https://plugin.soundrave.org/" target="_blank" rel="noopener">SoundRave ↗</a>
+        <a href="mailto:s.knife0317@gmail.com">Email ↗</a>
+      </div>
     </section>
-    <section>
-      <h2>Tech Notes</h2>
-      <ul>
-        <li>
-          <a href="https://note.com/sr_shoma" target="_blank">
-            note articles
-          </a>
-        </li>
-      </ul>
-    </section>
-    <section>
-      <h2>Links</h2>
-      <ul>
-        <li><a href="https://github.com/ShmKnd" target="_blank">GitHub</a></li>
-        <li><a href="https://www.youtube.com/" target="_blank">YouTube</a></li>
-        <li><a href="mailto:s.knife0317@gmail.com">Email</a></li>
-      </ul>
-    </section>
+
     <footer>
       <p>© 2026 Shoma Kondo</p>
+      <a href="#home">Back to top ↑</a>
     </footer>
   </main>
-  <!-- Side Sheet -->
+
   <div class="sheet-overlay" id="sheetOverlay"></div>
   <aside class="side-sheet" id="sideSheet" aria-hidden="true">
     <nav class="sheet-nav">
@@ -160,14 +72,19 @@
     </div>
   </aside>
 
-  <!-- Lightbox (Shared Element Transition) -->
   <div class="lightbox" id="lightbox">
     <div class="lightbox-bg" id="lightboxBg"></div>
     <img class="lightbox-img" id="lightboxImg" alt="" />
   </div>
 
-  <script src="js/projects.js"></script>
-  <script src="js/ui.js"></script>
-  <script src="js/three-bg.js"></script>
+  <script src="assets/js/projects-data.js"></script>
+  <script src="assets/js/projects.js"></script>
+  <script>
+    window.PORTFOLIO_READY.finally(function () {
+      var script = document.createElement('script');
+      script.src = 'assets/js/ui.js';
+      document.body.appendChild(script);
+    });
+  </script>
 </body>
 </html>

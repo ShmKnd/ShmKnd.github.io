@@ -1,66 +1,312 @@
 /* ── ui.js ──
    Line-level text background, side sheet, lightbox, PROCESS section.
-   Depends on: window.PROJECTS (js/projects.js loaded first)
+   Depends on: window.PROJECTS (loaded from data/projects.csv by js/projects.js)
 */
 (function () {
-
-  // ── Line-level text background (tech style) ──
+  // ── Cross-disciplinary archive filters ──
   (function () {
-    function appendLineSpanIfNeeded(frag, lineSpan) {
-      if (!lineSpan) return;
-      if (!lineSpan.textContent || !lineSpan.textContent.trim()) return;
-      frag.appendChild(lineSpan);
+    var chips = Array.from(document.querySelectorAll('[data-filter]'));
+    function getCards() { return Array.from(document.querySelectorAll('#workGrid .work-card')); }
+    var jumpers = Array.from(document.querySelectorAll('[data-set-filter]'));
+    var emptyState = document.getElementById('emptyState');
+    var workSection = document.getElementById('work');
+    var workGrid = document.getElementById('workGrid');
+    var reduceMotion = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    var canAnimate = !!(window.Element && Element.prototype && Element.prototype.animate);
+    var activeFilter = 'all';
+    var transitionToken = 0;
+
+    function matchesFilter(card, filter) {
+      if (filter === 'all') return true;
+      var tags = (card.dataset.tags || '').split(/\s+/).filter(Boolean);
+      return tags.indexOf(filter) !== -1;
     }
 
-    function makeLineSpan() {
-      const span = document.createElement('span');
-      span.className = 'tech-line-bg';
-      return span;
+    function numericOrder(card) {
+      var value = parseFloat(card.dataset.order);
+      return Number.isFinite(value) ? value : 999999;
     }
 
-    function applyLineBackground(el) {
-      if (el.dataset.lineBgDone === '1') return;
+    function shuffled(cards) {
+      var result = cards.slice();
+      for (var i = result.length - 1; i > 0; i -= 1) {
+        var j = Math.floor(Math.random() * (i + 1));
+        var tmp = result[i];
+        result[i] = result[j];
+        result[j] = tmp;
+      }
 
-      const nodes = Array.from(el.childNodes);
-      if (!nodes.length) {
-        el.dataset.lineBgDone = '1';
+      /* Avoid a no-op shuffle when possible, especially at the top position. */
+      if (result.length > 1 && cards.every(function (card, index) { return card === result[index]; })) {
+        result.push(result.shift());
+      }
+      return result;
+    }
+
+    function reorderCards(filter, cards) {
+      if (!workGrid) return cards;
+      var ordered = filter === 'all'
+        ? shuffled(cards)
+        : cards.slice().sort(function (a, b) { return numericOrder(a) - numericOrder(b); });
+      ordered.forEach(function (card) { workGrid.appendChild(card); });
+      return ordered;
+    }
+
+    function updateControls(filter) {
+      chips.forEach(function (chip) {
+        var active = chip.dataset.filter === filter;
+        chip.classList.toggle('is-active', active);
+        chip.setAttribute('aria-pressed', active ? 'true' : 'false');
+      });
+    }
+
+    function updateEmptyState(filter) {
+      if (!emptyState) return;
+      var visibleCount = getCards().filter(function (card) {
+        return matchesFilter(card, filter) && !card.classList.contains('is-hidden');
+      }).length;
+      emptyState.textContent = 'No work has been added to this category yet.';
+      emptyState.hidden = visibleCount !== 0;
+    }
+
+    function updateHistory(filter) {
+      try { history.replaceState(null, '', filter === 'all' ? '#work' : '#work/' + filter); } catch (e) {}
+    }
+
+    function cancelCardAnimations() {
+      getCards().forEach(function (card) {
+        if (!card.getAnimations) return;
+        card.getAnimations().forEach(function (animation) {
+          try { animation.cancel(); } catch (e) {}
+        });
+      });
+    }
+
+    function applyImmediate(filter, shouldUpdateHistory) {
+      var cards = getCards();
+      reorderCards(filter, cards);
+      cards.forEach(function (card) {
+        card.classList.toggle('is-hidden', !matchesFilter(card, filter));
+      });
+      updateControls(filter);
+      updateEmptyState(filter);
+      activeFilter = filter;
+      if (shouldUpdateHistory !== false) updateHistory(filter);
+    }
+
+    function animateFilter(filter) {
+      if (!workGrid) return;
+
+      /* Re-clicking a non-All category is intentionally a no-op.
+         Re-clicking All always reshuffles. */
+      if (filter === activeFilter && filter !== 'all') {
+        updateControls(filter);
         return;
       }
 
-      const frag = document.createDocumentFragment();
-      let lineSpan = makeLineSpan();
+      transitionToken += 1;
+      var token = transitionToken;
+      cancelCardAnimations();
 
-      nodes.forEach(function (node) {
-        if (node.nodeType === Node.ELEMENT_NODE && node.tagName === 'BR') {
-          appendLineSpanIfNeeded(frag, lineSpan);
-          frag.appendChild(node);
-          lineSpan = makeLineSpan();
-          return;
-        }
-        lineSpan.appendChild(node);
+      var cards = getCards();
+      var currentVisible = cards.filter(function (card) { return !card.classList.contains('is-hidden'); });
+      var targetVisible = cards.filter(function (card) { return matchesFilter(card, filter); });
+      var targetSet = new Set(targetVisible);
+      var firstRects = new Map();
+
+      currentVisible.forEach(function (card) {
+        firstRects.set(card, card.getBoundingClientRect());
       });
 
-      appendLineSpanIfNeeded(frag, lineSpan);
-      el.textContent = '';
-      el.appendChild(frag);
-      el.dataset.lineBgDone = '1';
+      var exiting = currentVisible.filter(function (card) { return !targetSet.has(card); });
+      var entering = targetVisible.filter(function (card) { return card.classList.contains('is-hidden'); });
+
+      updateControls(filter);
+      activeFilter = filter;
+      updateHistory(filter);
+
+      if (reduceMotion || !canAnimate) {
+        applyImmediate(filter, false);
+        return;
+      }
+
+      /* Phase 1: only cards that are no longer needed fade away.
+         The rest of the grid stays fully visible. */
+      var exitAnimations = exiting.map(function (card) {
+        return card.animate(
+          [{ opacity: 1 }, { opacity: 0 }],
+          { duration: 135, easing: 'cubic-bezier(.4,0,1,1)', fill: 'both' }
+        );
+      });
+
+      var exitsFinished = exitAnimations.length
+        ? Promise.all(exitAnimations.map(function (animation) { return animation.finished.catch(function () {}); }))
+        : Promise.resolve();
+
+      exitsFinished.then(function () {
+        if (token !== transitionToken) return;
+
+        exiting.forEach(function (card) {
+          card.classList.add('is-hidden');
+          if (card.getAnimations) card.getAnimations().forEach(function (animation) { try { animation.cancel(); } catch (e) {} });
+        });
+
+        /* Make new cards participate in layout at opacity 0. */
+        entering.forEach(function (card) {
+          card.classList.remove('is-hidden');
+          card.style.opacity = '0';
+        });
+
+        /* Non-All categories return to their deliberate CSV order.
+           All deliberately gets a fresh random order every time. */
+        reorderCards(filter, getCards());
+
+        /* Force the target layout before calculating FLIP deltas. */
+        void workGrid.offsetWidth;
+
+        var targetCards = getCards().filter(function (card) { return !card.classList.contains('is-hidden'); });
+        var moveAnimations = [];
+
+        targetCards.forEach(function (card) {
+          if (!firstRects.has(card)) return;
+          var first = firstRects.get(card);
+          var last = card.getBoundingClientRect();
+          var dx = first.left - last.left;
+          var dy = first.top - last.top;
+          if (Math.abs(dx) < 0.5 && Math.abs(dy) < 0.5) return;
+
+          moveAnimations.push(card.animate(
+            [
+              { transform: 'translate(' + dx + 'px,' + dy + 'px)' },
+              { transform: 'translate(0,0)' }
+            ],
+            { duration: 285, easing: 'cubic-bezier(.22,1,.36,1)' }
+          ));
+        });
+
+        /* Phase 2: only newly required cards fade in. */
+        entering.forEach(function (card) {
+          card.style.opacity = '';
+          card.animate(
+            [{ opacity: 0 }, { opacity: 1 }],
+            { duration: 190, delay: 35, easing: 'ease-out', fill: 'both' }
+          ).finished.catch(function () {}).then(function () {
+            if (token !== transitionToken) return;
+            if (card.getAnimations) {
+              card.getAnimations().forEach(function (animation) {
+                if (animation.playState === 'finished') {
+                  try { animation.cancel(); } catch (e) {}
+                }
+              });
+            }
+          });
+        });
+
+        updateEmptyState(filter);
+      });
     }
 
-    const targets = document.querySelectorAll('main h1, main .role, main h2, main h3, main p, main .project-title, main .project-desc, main a:not(.project-link), main footer p');
-    targets.forEach(applyLineBackground);
+    function setFilter(filter, immediate, shouldUpdateHistory) {
+      if (immediate) {
+        transitionToken += 1;
+        cancelCardAnimations();
+        applyImmediate(filter, shouldUpdateHistory);
+        return;
+      }
+      animateFilter(filter);
+    }
+
+    chips.forEach(function (chip) {
+      chip.addEventListener('click', function () { setFilter(chip.dataset.filter || 'all'); });
+    });
+
+    jumpers.forEach(function (button) {
+      button.addEventListener('click', function () {
+        setFilter(button.dataset.setFilter || 'all');
+        if (workSection) workSection.scrollIntoView({ behavior:'smooth', block:'start' });
+      });
+    });
+
+    var initial = (location.hash.match(/^#work\/(visual|technology|product|photo|movie)$/) || [])[1];
+    if (initial) {
+      setFilter(initial, true, false);
+    } else {
+      /* Start All in a random order too, without rewriting the URL on load. */
+      setFilter('all', true, false);
+    }
+
   })();
 
   // ── Side Sheet logic ──
   (function () {
     const projects = window.PROJECTS || {};
 
-    /* ── Preload all project images ── */
+    /* ── YouTube helpers ── */
+    function getYouTubeId(url) {
+      if (!url || typeof url !== 'string') return '';
+      try {
+        var parsed = new URL(url, window.location.href);
+        var host = parsed.hostname.replace(/^www\./, '').toLowerCase();
+
+        if (host === 'youtu.be') {
+          return (parsed.pathname.split('/').filter(Boolean)[0] || '').trim();
+        }
+
+        if (host === 'youtube.com' || host === 'm.youtube.com' || host === 'music.youtube.com' || host === 'youtube-nocookie.com') {
+          if (parsed.pathname === '/watch') return (parsed.searchParams.get('v') || '').trim();
+          var parts = parsed.pathname.split('/').filter(Boolean);
+          if (parts.length >= 2 && ['embed', 'shorts', 'live'].indexOf(parts[0]) !== -1) {
+            return (parts[1] || '').trim();
+          }
+        }
+      } catch (e) {}
+
+      /* Also accept a bare 11-character video ID. */
+      if (/^[A-Za-z0-9_-]{11}$/.test(url.trim())) return url.trim();
+      return '';
+    }
+
+    function getYouTubeEmbedUrl(url) {
+      var id = getYouTubeId(url);
+      return id ? 'https://www.youtube-nocookie.com/embed/' + encodeURIComponent(id) + '?rel=0' : '';
+    }
+
+    function getYouTubeThumbnailUrl(url) {
+      var id = getYouTubeId(url);
+      return id ? 'https://i.ytimg.com/vi/' + encodeURIComponent(id) + '/hqdefault.jpg' : '';
+    }
+
+    /* ── Preload all local project images ── */
     (function preloadProjectImages() {
       Object.keys(projects).forEach(function (key) {
-        projects[key].images.forEach(function (src) {
+        var images = Array.isArray(projects[key].images) ? projects[key].images : [];
+        images.forEach(function (src) {
           var img = new Image();
           img.src = src;
         });
+      });
+    })();
+
+    /* If a project card has no <img>, use its YouTube thumbnail automatically. */
+    (function hydrateYouTubeCardCovers() {
+      document.querySelectorAll('a.project-link[data-project]').forEach(function (link) {
+        if (link.querySelector('img')) return;
+        var data = projects[link.dataset.project];
+        if (!data || !data.youtube) return;
+        var thumb = getYouTubeThumbnailUrl(data.youtube);
+        if (!thumb) return;
+
+        var img = document.createElement('img');
+        img.src = thumb;
+        img.alt = data.title || 'YouTube video';
+        img.loading = 'lazy';
+        link.appendChild(img);
+
+        var badge = document.createElement('span');
+        badge.className = 'youtube-cover-badge';
+        badge.setAttribute('aria-hidden', 'true');
+        badge.textContent = '▶';
+        link.appendChild(badge);
       });
     })();
 
@@ -428,7 +674,46 @@
 
       elImages.innerHTML = '';
       sliderIndex = 0;
-      if (data.images.length) {
+
+      /* YouTube media from the universal CSV. */
+      var youtubeEmbed = getYouTubeEmbedUrl(data.youtube || '');
+      if (youtubeEmbed) {
+        var ytWrap = document.createElement('div');
+        ytWrap.className = 'sheet-youtube';
+
+        var iframe = document.createElement('iframe');
+        iframe.src = youtubeEmbed;
+        iframe.title = (data.title || 'Project') + ' — YouTube video';
+        iframe.loading = 'lazy';
+        iframe.allow = 'accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share';
+        iframe.setAttribute('allowfullscreen', '');
+        iframe.setAttribute('referrerpolicy', 'strict-origin-when-cross-origin');
+
+        ytWrap.appendChild(iframe);
+        elImages.appendChild(ytWrap);
+      }
+
+      /* Self-hosted / local video file. Useful for reels that should not use YouTube. */
+      var localVideo = String(data.video || '').trim();
+      if (localVideo) {
+        var videoWrap = document.createElement('div');
+        videoWrap.className = 'sheet-video';
+
+        var video = document.createElement('video');
+        video.src = localVideo;
+        video.controls = true;
+        video.preload = 'metadata';
+        video.playsInline = true;
+        video.setAttribute('playsinline', '');
+        video.setAttribute('controlslist', 'nodownload');
+        video.setAttribute('aria-label', (data.title || 'Project') + ' — video');
+
+        videoWrap.appendChild(video);
+        elImages.appendChild(videoWrap);
+      }
+
+      var projectImages = Array.isArray(data.images) ? data.images : [];
+      if (projectImages.length) {
         /* Build slider */
         var slider = document.createElement('div');
         slider.className = 'sheet-slider';
@@ -437,7 +722,7 @@
         trackWrap.className = 'sheet-slider-track-wrap';
         var track = document.createElement('div');
         track.className = 'sheet-slider-track';
-        data.images.forEach(function (src) {
+        projectImages.forEach(function (src) {
           var img = document.createElement('img');
           img.src = src;
           img.alt = data.title;
@@ -448,10 +733,10 @@
         slider.appendChild(trackWrap);
 
         /* Dots */
-        if (data.images.length > 1) {
+        if (projectImages.length > 1) {
           var dots = document.createElement('div');
           dots.className = 'sheet-dots';
-          data.images.forEach(function (_, i) {
+          projectImages.forEach(function (_, i) {
             var d = document.createElement('button');
             d.className = 'sheet-dot' + (i === 0 ? ' is-active' : '');
             d.setAttribute('aria-label', 'Slide ' + (i + 1));
@@ -463,7 +748,7 @@
 
         elImages.appendChild(slider);
         sliderTrack = track;
-        sliderTotal = data.images.length;
+        sliderTotal = projectImages.length;
 
         /* Set slide width as CSS var and recalc on resize */
         function syncSlideWidth() {
@@ -477,7 +762,9 @@
 
         initSwipe(slider);
       } else {
-        elImages.innerHTML = '<p class="sheet-no-image">No images yet.</p>';
+        if (!youtubeEmbed && !localVideo) {
+          elImages.innerHTML = '<p class="sheet-no-image">No media yet.</p>';
+        }
         sliderTrack = null;
         sliderTotal = 0;
       }
@@ -515,7 +802,11 @@
 
       /* Create PROCESS section (cleanup previous if present) */
       if (elBackground._procClean) { elBackground._procClean(); }
-      elBackground._procClean = createProcessSection(elBackground, data);
+      var projectTags = String(data.tags || '').split(/\s+/).filter(Boolean);
+      var isMediaProject = projectTags.indexOf('photo') !== -1 || projectTags.indexOf('movie') !== -1;
+      elBackground._procClean = isMediaProject
+        ? null
+        : createProcessSection(elBackground, data);
 
       /* Show sheet */
       sheet.classList.add('is-open');
